@@ -6,7 +6,7 @@ namespace SW.ExcelImport
 {
     public interface IExcelStorageMap
     {
-        Task Import(IExcelReader source, string url, Type onType, ParseOptions options);
-        Task ImportAndParse(IExcelReader source, string url, Type onType, ParseOptions options);
+        Task Import(IExcelReader source, string url,  ParseOptions options);
+        Task ImportAndParse(IExcelReader source, string url, ParseOptions options);
     } 
 }

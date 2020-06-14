@@ -8,9 +8,11 @@ namespace SW.ExcelImport.UnitTests
         public static ICell String(string value) => new StringCell(value);
         public static ICell Int(int value) => new IntCell(value);
         public static ICell Double(double value) => new DoubleCell(value);
-        public static ICell String(string value) => new StringCell(value);
-        public static ICell String(string value) => new StringCell(value);
-
+        public static ICell True() => new BoolCell(true);
+        public static ICell False() => new BoolCell(false);
+        public static ICell DateTime(DateTime value) => new DateTimeCell(value);
+        public static ICell TimeSpan(TimeSpan value) => new TimeSpanCell(value);
+        public static ICell Null() => new NullCell();
 
     }
     public class StringCell : ICell

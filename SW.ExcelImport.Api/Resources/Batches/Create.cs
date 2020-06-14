@@ -22,7 +22,7 @@ namespace SW.ExcelImport.Api.Resources.Batches
         {
             
 
-            var dtoType = typeof(Pmm.Model.NewParcelRequestDto);
+            
             return null;
         }
     }

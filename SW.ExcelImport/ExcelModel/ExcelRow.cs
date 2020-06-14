@@ -5,25 +5,19 @@ namespace SW.ExcelImport
 {
     public class ExcelRow: IExcelRow
     {
-        public int Index { get; private set; }
+        public int Index { get; }
         
-        public Cell[] ExcelCells { get; private set;}
-        public ICell[] Cells => ExcelCells;
+        public ICell[] Cells { get; }
 
-        private readonly Sheet sheet;
+        public ISheet Sheet { get; }
         
-        public ExcelRow(int index, IExcelDataReader reader)
+        public ExcelRow(int index, ISheet sheet, IExcelDataReader reader)
         {
             this.Index = index;
-            FillCells(reader);
+            Sheet = sheet;
+            this.Cells = reader.GetCells();
         }
         
-        private void FillCells(IExcelDataReader reader)
-        {
-            this.ExcelCells = new Cell[reader.FieldCount];
-            for (int i = 0; i < Cells.Length; i++)
-                Cells[i] = new Cell(i, reader);
-        }
         
     }
 }

@@ -1,12 +1,12 @@
 namespace SW.ExcelImport.Domain
 {
-    public class ExcelCell: ICell
+    public class CellRecord: ICell
     {
-        protected ExcelCell()
+        protected CellRecord()
         {
             
         }
-        public ExcelCell(ICell  cell)
+        public CellRecord(ICell  cell)
         {
             this.Type = cell.Type;
             this.Value = cell.Value;

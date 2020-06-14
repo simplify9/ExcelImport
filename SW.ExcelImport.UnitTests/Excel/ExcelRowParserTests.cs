@@ -26,15 +26,20 @@ namespace SW.ExcelImport.UnitTests.Excel
     [TestClass]
     public class ExcelRowParserTests
     {
+        public class Dto
+        {
+            public int MyProperty { get; set; }
+        }
         [TestMethod]
         public void ParseIdTes()
         {
             var repo = new Mock<IExcelRepo>().Object;
             var row = new Mock<IExcelRow>();
-            row.Setup(x=> x.Cells).Returns(new ICell[] {})
-            var parser = new ExcelRowParser(repo);
-
-            parser.ParseId()
+            row.Setup(x=> x.Cells).Returns(new ICell[] {});
+            //var parser = new ExcelRowParser(repo);
+            //var request = new Mock<IExcelRowParseRequest>().Setup(x=> x.)
+            //parser.ParseId()
+            
 
         }
     }

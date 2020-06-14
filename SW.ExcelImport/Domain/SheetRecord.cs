@@ -10,23 +10,26 @@ namespace SW.ExcelImport.Domain
             
         }
         
-        public SheetRecord(ExcelFileRecord parent, ISheet sheet)
+        public SheetRecord(ExcelFileRecord parent, ISheet sheet, SheetValidationResult validationResult)
         {
-            Parent = parent ?? throw new ArgumentNullException(nameof(parent));
+            //Parent = parent ?? throw new ArgumentNullException(nameof(parent));
             Index = sheet.Index;
-            HeaderMap = sheet.HeaderMap;
+            
             Name = sheet.Name;
             Empty = sheet.Empty;
             EmptyData = sheet.EmptyData;
             RowCount = sheet.RowCount;
-            Primary = sheet.Primary;
-            InvalidMap = sheet.InvalidMap;
-            InvalidName = sheet.InvalidName;
+            InvalidName = validationResult.InvalidName;
+            InvalidHeaders = validationResult.InvalidHeaders;
+            OnType = validationResult.OnType;
+            Map = validationResult.Map;
+            IgnoreFirstRow = validationResult.IgnoreFirstRow;
 
         }
-        public ISheetContainer Parent {get; private set;}
+        public long Id { get; set; }
+        public ExcelFileRecord ExcelFileRecord {get; private set;}
         public int Index { get; private set; }
-        public string[] HeaderMap { get; private set; }
+        
         public string Name { get; private set;}
 
         public bool Empty { get; private set;}
@@ -34,9 +37,19 @@ namespace SW.ExcelImport.Domain
         public bool EmptyData { get; private set; }
 
         public int RowCount { get; private set; }
+        public CellRecord[] HeaderCellRecords { get; set; }
+        public bool InvalidName { get; set; } 
+        public int[] InvalidHeaders { get; set; }
 
-        public bool Primary { get; private set; }
-        public int[] InvalidMap { get; private set; }
-        public bool InvalidName { get; private set; }
+
+        public Type OnType { get; }
+        public string[] Map { get; }
+        public bool IgnoreFirstRow { get; }
+
+        public ICell[] Header => HeaderCellRecords;
+
+        public ISheetContainer Parent => ExcelFileRecord;
+
+
     }
 }

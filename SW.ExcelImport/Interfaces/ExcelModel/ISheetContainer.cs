@@ -4,6 +4,7 @@ namespace SW.ExcelImport
     {
         string Reference { get; }
         int SheetCount { get; }
+        ISheet[] Sheets { get;}
     }
     
 }

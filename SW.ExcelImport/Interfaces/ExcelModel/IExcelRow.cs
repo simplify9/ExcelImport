@@ -5,7 +5,8 @@ namespace SW.ExcelImport
         
         int Index { get;}
         ICell[] Cells { get;}
-        
+        ISheet Sheet { get; } 
+
     }
 
     

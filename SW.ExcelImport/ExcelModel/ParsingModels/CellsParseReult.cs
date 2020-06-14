@@ -2,8 +2,7 @@ namespace SW.ExcelImport
 {
     public class CellsParseReult
     {
-        public object RowObject { get; set; }
+        public string RowAsJson { get; set; }
         public int[] InvalidCells { get; set; }
     }
-
 }

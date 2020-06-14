@@ -6,7 +6,7 @@ namespace SW.ExcelImport
         public int? ForeignUserDefinedId { get; private set; }
         public bool? InvalidIdValue { get; private set; }
         public bool? InvalidForeignIdValue { get; private set; }
-        public object RowObject { get; private set; }
+        public string RowAsJson { get; private set; }
         public int[] InvalidCells { get; private set; }
         public bool? IdDuplicate { get; private set; }
         public bool? ForeignIdNotFound { get; private set; }
@@ -24,7 +24,7 @@ namespace SW.ExcelImport
 
         public void Populate(CellsParseReult result)
         {
-            RowObject = result.RowObject;
+            RowAsJson = result.RowAsJson;
             InvalidCells = result.InvalidCells;
         }
 
