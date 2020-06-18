@@ -28,6 +28,7 @@ namespace SW.ExcelImport.EF
             var record = b.Entity<RowRecord>();
             record.HasKey(x=> x.Id);
             record.HasOne(x=> x.SheetRecord).WithMany();
+            record.HasOne(x=> x.Parent).WithMany(x=> x.Children).HasForeignKey(x=> x.ForeignId);
             //record.HasOne()
 
         }

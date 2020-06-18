@@ -7,7 +7,7 @@ namespace SW.ExcelImport.Services
     public class ExcelRecordReader : IExcelReader
     {
         
-        private ParseOptions options;
+        private TypedParseToJsonOptions options;
         private bool loaded;
         readonly IExcelRepo repo;
 
@@ -16,7 +16,7 @@ namespace SW.ExcelImport.Services
             this.repo = repo;
         }
         
-        public  Task Load(string url,  ParseOptions options)
+        public  Task Load(string url,  TypedParseToJsonOptions options)
         {
             return Task.CompletedTask;
         }
@@ -25,8 +25,6 @@ namespace SW.ExcelImport.Services
         public IExcelRow Current { get; private set; }
 
         public ISheetContainer Container { get; private set; }
-
-        public ISheet MainSheet => throw new NotImplementedException();
 
         public void Dispose()
         {

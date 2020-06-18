@@ -21,7 +21,6 @@ namespace SW.ExcelImport.Domain
             RowCount = sheet.RowCount;
             InvalidName = validationResult.InvalidName;
             InvalidHeaders = validationResult.InvalidHeaders;
-            OnType = validationResult.OnType;
             Map = validationResult.Map;
             IgnoreFirstRow = validationResult.IgnoreFirstRow;
 
@@ -41,8 +40,6 @@ namespace SW.ExcelImport.Domain
         public bool InvalidName { get; set; } 
         public int[] InvalidHeaders { get; set; }
 
-
-        public Type OnType { get; }
         public string[] Map { get; }
         public bool IgnoreFirstRow { get; }
 

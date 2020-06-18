@@ -8,6 +8,31 @@ using SW.ExcelImport.Domain;
 
 namespace SW.ExcelImport.Services
 {
+    public class ExcelValidator : IExcelValidator
+    {
+        readonly ExcelRepo repo;
+        readonly ExcelRowValidator<ExcelRowValidateOnTypeRequest, ExcelRowValidationResult> validator;
+        public ExcelValidator(ExcelRepo repo, ExcelRowValidator<ExcelRowValidateOnTypeRequest, ExcelRowValidationResult> validator)
+        {
+            this.repo = repo;
+            this.validator  = validator;
+        }
+        public async Task Process(string reference, TypedParseToJsonOptions parseOptions)
+        {
+            var count = await repo.GetParsedOkCount(reference);
+            for (int i = 0; i <  (count / 10) + 1 ; i++)
+            {
+                var rows = await repo.GetParsedOk(reference, i *10 , 10);
+                foreach (var row in rows)
+                {
+                    var result = await validator.Validate(
+                        new ExcelRowValidateOnTypeRequest( row,parseOptions.OnType, parseOptions.NamingStrategy));
+                    row.FillData(result.Data);
+                }
+                await repo.SaveChanges();
+            }
+        }
+    }
     public class ExcelStorageMap : IExcelStorageMap
     {
         readonly ExcelRepo repo;
@@ -20,7 +45,7 @@ namespace SW.ExcelImport.Services
             this.sheetValidator = sheetValidator;
         }
         
-        public async Task Import(IExcelReader source, string url, ParseOptions options)
+        public async Task Import(IExcelReader source, string url, TypedParseToJsonOptions options)
         {
             var (hasErrors, container) = await Load(source, url, options);
             if(hasErrors) return;
@@ -34,10 +59,13 @@ namespace SW.ExcelImport.Services
             
         }
 
-        public async Task ImportAndParse(IExcelReader source, string url,  ParseOptions options)
+        public async Task ImportAndParse(IExcelReader source, string url,  TypedParseToJsonOptions options)
         {
             var totalRowsWithErrors = 0;
+            
+            
             var (hasErrors, container) = await Load(source, url, options);
+
             if(hasErrors) return;
 
 
@@ -46,7 +74,7 @@ namespace SW.ExcelImport.Services
                 if(totalRowsWithErrors >= options.MaxParseErrors)
                     return;
 
-                var result = await parser.Parse(new ExcelRowParseRequest 
+                var result = await parser.Parse(new ExcelRowParseOnTypeRequest 
                 { 
                     Options = options.SheetsOptions.FirstOrDefault(o => o.SheetIndex == source.CurrentSheet.Index),
                     Row = source.Current
@@ -68,7 +96,7 @@ namespace SW.ExcelImport.Services
         }
 
 
-        public async Task<(bool, ISheetContainer)> Load(IExcelReader source, string url,  ParseOptions options)
+        public async Task<(bool, ISheetContainer)> Load(IExcelReader source, string url,  TypedParseToJsonOptions options)
         {
             await source.Load(url,options);
 

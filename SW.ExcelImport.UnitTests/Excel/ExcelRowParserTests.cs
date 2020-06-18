@@ -17,13 +17,13 @@ using SW.ExcelImport;
 using SW.ExcelImport.Model;
 using SW.ExcelImport.Services;
 using Moq;
-
-
+using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace SW.ExcelImport.UnitTests.Excel
 {
-    
-    [TestClass]
+
+
     public class ExcelRowParserTests
     {
         public class Dto

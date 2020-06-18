@@ -6,10 +6,14 @@ namespace SW.ExcelImport
         public int? ForeignUserDefinedId { get; private set; }
         public bool? InvalidIdValue { get; private set; }
         public bool? InvalidForeignIdValue { get; private set; }
-        public string RowAsJson { get; private set; }
+        public string RowAsData { get; private set; }
         public int[] InvalidCells { get; private set; }
         public bool? IdDuplicate { get; private set; }
         public bool? ForeignIdNotFound { get; private set; }
+
+        public long? ForeignId { get; private set; }
+
+        public bool? ParseOk =>  !this.HasErrors();
 
         // public bool HasError => InvalidCells.Length > 0 || InvalidIdValue || InvalidForeignIdValue 
         //     || IdDuplicate || ForeignIdNotFound;
@@ -24,7 +28,7 @@ namespace SW.ExcelImport
 
         public void Populate(CellsParseReult result)
         {
-            RowAsJson = result.RowAsJson;
+            RowAsData = result.RowAsJson;
             InvalidCells = result.InvalidCells;
         }
 

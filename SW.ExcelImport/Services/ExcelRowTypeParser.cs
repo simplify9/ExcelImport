@@ -1,3 +1,4 @@
+using System.ComponentModel.Design;
 using System.Linq;
 using System;
 using SW.ExcelImport.Model;
@@ -10,14 +11,14 @@ using Newtonsoft.Json.Serialization;
 
 namespace SW.ExcelImport.Services
 {
-    public class ExcelRowTypeParser : ExcelRowParser<ExcelRowParseRequest, ExcelRowParseResult>
+    public class ExcelRowTypeParser : ExcelRowParser<ExcelRowParseOnTypeRequest, ExcelRowParseResult>
     {
         readonly IExcelRepo repo;
         public ExcelRowTypeParser(IExcelRepo repo)
         {
             this.repo = repo;
         }
-        public override async Task<ExcelRowParseResult> Parse(ExcelRowParseRequest request)
+        public override async Task<ExcelRowParseResult> Parse(ExcelRowParseOnTypeRequest request)
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
 
@@ -30,12 +31,13 @@ namespace SW.ExcelImport.Services
             result.Populate(cellsParseReult);
 
             var idInStoreValidationResult = await ValidateIds(result, request);
+            result.Populate(idInStoreValidationResult);
 
             return result;
 
         }
 
-        public virtual IdParseResult ParseId(ExcelRowParseRequest request)
+        public virtual IdParseResult ParseId(ExcelRowParseOnTypeRequest request)
         {
 
             var result = new IdParseResult
@@ -81,7 +83,7 @@ namespace SW.ExcelImport.Services
             return result;
         }
 
-        public virtual CellsParseReult ParseCells(ExcelRowParseRequest request, int[] excludeCells)
+        public virtual CellsParseReult ParseCells(ExcelRowParseOnTypeRequest request, int[] excludeCells)
         {
             var result = new CellsParseReult();
 
@@ -89,16 +91,26 @@ namespace SW.ExcelImport.Services
             var values = new Dictionary<string, object>();
             var row = request.Row;
             var sheet = row.Sheet as SheetRecord;
+            Type parseOnType = null;
+            var name = request.Options.SheetLongName ?? sheet.Name;
+            var map = request.Options.Map;
+
+            if (sheet.Index == 1)
+                parseOnType = request.RootType;
+            else
+                parseOnType = PropertyPath.TryParse(request.RootType, name.ToPascalCase()).PropertyType;
+
+
 
             for (int i = 0; i < row.Cells.Length; i++)
             {
                 if (excludeCells.Contains(i)) continue;
 
                 var value = row.Cells[i];
-                var name = request.Options.SheetLongName ?? sheet.Name;
 
                 object castValue;
-                var propertyPath = PropertyPath.TryParse(sheet.OnType, name.ToPascalCase());
+
+                var propertyPath = PropertyPath.TryParse(parseOnType, name.ToPascalCase());
 
                 var convertSucceeded =
                     Converter.TryCreate(value, propertyPath.PropertyType, out castValue);
@@ -128,7 +140,7 @@ namespace SW.ExcelImport.Services
             };
 
             if (invalidCells.Count == 0)
-                result.RowAsJson = JsonConvert.SerializeObject(sheet.OnType.CreateFromDictionary(values),settings );
+                result.RowAsJson = JsonConvert.SerializeObject(parseOnType.CreateFromDictionary(values), settings);
             else result.InvalidCells = invalidCells.ToArray();
 
             return result;
@@ -142,16 +154,18 @@ namespace SW.ExcelImport.Services
             if (!parseResult.InvalidIdValue.Value)
             {
                 var found = await repo.RowRecordExists(request.Row.Sheet, parseResult.UserDefinedId.Value);
-                if (found)
+                if (found.HasValue)
                     result.IdDuplicate = true;
             }
 
             if (parseResult.ForeignUserDefinedId.HasValue)
             {
-                var found = await repo.RowRecordExists(request.Row.Sheet.Parent.Sheets.FirstOrDefault(x=> x.Index == 1)
+                var found = await repo.RowRecordExists(request.Row.Sheet.Parent.Sheets.FirstOrDefault(x => x.Index == 1)
                     , parseResult.ForeignUserDefinedId.Value);
-                if (!found)
+                if (!found.HasValue)
                     result.ForeignIdNotFound = true;
+                else
+                    result.ForeignId = found.Value;
             }
 
             return result;

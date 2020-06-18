@@ -4,6 +4,7 @@ namespace SW.ExcelImport
     {
         public bool? IdDuplicate { get; set; }
         public bool? ForeignIdNotFound { get; set; }
+        public long? ForeignId { get; set; }
     }
 
 }

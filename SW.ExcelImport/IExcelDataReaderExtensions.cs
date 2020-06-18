@@ -2,6 +2,7 @@ using ExcelDataReader;
 
 namespace SW.ExcelImport
 {
+
     public static class IExcelDataReaderExtensions
     {
         public static ICell[] GetCells(this IExcelDataReader reader)

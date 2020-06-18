@@ -18,7 +18,7 @@ namespace SW.ExcelImport.Api.Resources.Batches
         {
             this.cloudFilesService = cloudFilesService;
         }
-        public async Task<object> Handle(CreateBatch request)
+        public Task<object> Handle(CreateBatch request)
         {
             
 

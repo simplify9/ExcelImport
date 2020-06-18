@@ -8,7 +8,7 @@ namespace SW.ExcelImport.Services
 {
     public class ExcelSheetOnTypeValidator 
     {
-        public Task<SheetValidationResult> Validate(ISheet sheet, ParseOptions options)
+        public Task<SheetValidationResult> Validate(ISheet sheet, TypedParseToJsonOptions options)
         {
             if (sheet.Empty || sheet.EmptyData)
                 return Task.FromResult(new SheetValidationResult(false, new int[] { },null,false));
@@ -39,13 +39,13 @@ namespace SW.ExcelImport.Services
 
         }
 
-        private SheetMappingOptions GetOptions(ISheet sheet, ParseOptions options) =>
+        private SheetMappingOptions GetOptions(ISheet sheet, TypedParseToJsonOptions options) =>
             options.SheetsOptions.FirstOrDefault(o => o.SheetIndex == sheet.Index) ??
                  SheetMappingOptions.Default(sheet.Index);
         private (bool,string[]) GetMap(ISheet sheet, SheetMappingOptions options) =>
             (options.Map !=null, options.Map ?? sheet.Header.Select(x => x.Value.ToString()).ToArray());
 
-        private Type GetType(ISheet sheet, SheetMappingOptions mappingOptions, ParseOptions options)
+        private Type GetType(ISheet sheet, SheetMappingOptions mappingOptions, TypedParseToJsonOptions options)
         {
             var propertyName = mappingOptions.SheetLongName ?? sheet.Name;
 

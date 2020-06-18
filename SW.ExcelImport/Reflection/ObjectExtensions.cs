@@ -11,6 +11,16 @@ namespace SW.ExcelImport
     {
         private static readonly MethodInfo CloneMethod = typeof(Object).GetMethod("MemberwiseClone", BindingFlags.NonPublic | BindingFlags.Instance);
 
+        public static object GetPropertyValue(this object o, string propertyName)
+		{
+			object objValue = string.Empty;
+
+			var propertyInfo = o.GetType().GetProperty(propertyName);
+			if (propertyInfo != null)
+				objValue = propertyInfo.GetValue(o, null);
+
+			return objValue;
+		}
         public static bool IsPrimitive(this Type type)
         {
             if (type == typeof(String)) return true;

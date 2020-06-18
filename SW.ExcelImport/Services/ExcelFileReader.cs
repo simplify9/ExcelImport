@@ -17,7 +17,7 @@ namespace SW.ExcelImport.Services
         private Stream stream;
         private int sheetIndex = 1;
         private int index = 1;
-        private ParseOptions options;
+        private TypedParseToJsonOptions options;
         private bool loaded;
         
         public ExcelFileReader(ICloudFilesService cloudFilesService)
@@ -25,7 +25,7 @@ namespace SW.ExcelImport.Services
             this.cloudFilesService = cloudFilesService;
         }
 
-        public async Task Load(string url,  ParseOptions options)
+        public async Task Load(string url,  TypedParseToJsonOptions options)
         {
 
             if (reader == null)
@@ -47,7 +47,6 @@ namespace SW.ExcelImport.Services
 
 
         public ISheet CurrentSheet { get; private set; }
-        public ISheet MainSheet { get; private set; }
 
         public IExcelRow Current { get; private set; }
 

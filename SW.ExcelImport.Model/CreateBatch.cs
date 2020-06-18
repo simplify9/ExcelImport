@@ -7,7 +7,7 @@ namespace SW.ExcelImport.Model
         public string FileUrl { get; set; }
         public string ApiUrl { get; set; }
         public string PayloadType { get; set; }
-        public ParseOptions ParseOptions { get; set; }
+        public TypedParseToJsonOptions ParseOptions { get; set; }
         public ActionOptions ActionOptions { get; set; }
     }
 }

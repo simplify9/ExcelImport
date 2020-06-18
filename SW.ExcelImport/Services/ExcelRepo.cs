@@ -20,11 +20,12 @@ namespace SW.ExcelImport.Services
             this.db = db;
         }
         
-        public Task<bool> RowRecordExists(ISheet sheet, int identifier )
+        public async Task<long?> RowRecordExists(ISheet sheet, int identifier )
         {
-            return db.Set<RowRecord>().AnyAsync(x=> x.UserDefinedId == identifier && 
+            var result = await db.Set<RowRecord>().Where(x=> x.UserDefinedId == identifier && 
                 x.Sheet.Name == sheet.Name && 
-                x.Sheet.Parent.Reference == sheet.Parent.Reference);
+                x.Sheet.Parent.Reference == sheet.Parent.Reference).Select(r=> r.Id).FirstOrDefaultAsync();
+            return result == 0 ? (long?)null : result;
         }
 
         public async Task<ISheetContainer> CreateExcelFileRecordIfNotExists(ISheetContainer container, IDictionary<int,SheetValidationResult> sheetsValidationResult  )
@@ -44,6 +45,35 @@ namespace SW.ExcelImport.Services
             return record;
         }
 
+        public async Task<IEnumerable<RowRecord>> GetParsedOk (string reference, int skip, int take)
+        {
+            var query = GetParsedOk(reference);
+            query = query.Include(x => x.Children).ThenInclude(x => x.Sheet);
+            var result = await query.Skip(skip).Take(take).OrderBy(x=> x.Index).ToListAsync();
+            return result;
+        }
+
+        public async Task<int> GetParsedOkCount (string reference)
+        {
+            var query = GetParsedOk(reference);
+            var count = await query.CountAsync();
+            
+            return count;
+        }
+
+        private IQueryable<RowRecord> GetParsedOk (string reference)
+        {
+            return db.Set<RowRecord>().Where(x=> x.Sheet.Parent.Reference == reference && 
+                x.ParseOk == true && x.Children.All(c => c.ParseOk == true) && x.Sheet.Index == 1);
+        }
+
+        private IQueryable<RowRecord> GetParsed (string reference)
+        {
+            return db.Set<RowRecord>().Where(x=> x.Sheet.Parent.Reference == reference && 
+                x.ParseOk != null && x.Children.All(c => c.ParseOk != null) && x.Sheet.Index == 1);
+        }
+
+        
         public void Add(IExcelRow row, ISheet sheet, IExcelRowParseResult parseResult = null )
         {
             if(row == null)
