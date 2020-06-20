@@ -24,7 +24,7 @@ namespace SW.ExcelImport.Services
 
             var result = new ExcelRowParseResult();
 
-            var idParseResult = ParseId(request);
+            var idParseResult = ParseId(request.Row,request.Options);
             result.Populate(idParseResult);
 
             var cellsParseReult = ParseCells(request, idParseResult.ExcludeColumns);
@@ -37,7 +37,7 @@ namespace SW.ExcelImport.Services
 
         }
 
-        public virtual IdParseResult ParseId(ExcelRowParseOnTypeRequest request)
+        public virtual IdParseResult ParseId(IExcelRow row, SheetMappingOptions options)
         {
 
             var result = new IdParseResult
@@ -48,15 +48,13 @@ namespace SW.ExcelImport.Services
             var id = 0;
 
             var excludeColumns = new List<int>();
-            var row = request.Row;
-
-            var options = request.Options;
+            
 
 
             if (options.IdIndex.HasValue)
             {
                 excludeColumns.Add(options.IdIndex.Value);
-                var val = request.Row.Cells[options.IdIndex.Value].Value?.ToString();
+                var val = row.Cells[options.IdIndex.Value].Value?.ToString();
                 if (int.TryParse(val, out id))
                     result.UserDefinedId = id;
                 else
@@ -72,14 +70,14 @@ namespace SW.ExcelImport.Services
             if (options.ParentIdIndex.HasValue)
             {
                 excludeColumns.Add(options.ParentIdIndex.Value);
-                var val = request.Row.Cells[options.ParentIdIndex.Value].Value?.ToString();
+                var val = row.Cells[options.ParentIdIndex.Value].Value?.ToString();
                 if (int.TryParse(val, out id))
                     result.ForeignUserDefinedId = id;
                 else
                     result.InvalidForeignIdValue = true;
             }
 
-
+            result.ExcludeColumns = excludeColumns.ToArray();
             return result;
         }
 
@@ -90,27 +88,26 @@ namespace SW.ExcelImport.Services
             var invalidCells = new List<int>();
             var values = new Dictionary<string, object>();
             var row = request.Row;
-            var sheet = row.Sheet as SheetRecord;
+            var sheet = row.Sheet;
             Type parseOnType = null;
             var name = request.Options.SheetLongName ?? sheet.Name;
             var map = request.Options.Map;
+            var strategy = request.NamingStrategy;
 
             if (sheet.Index == 1)
                 parseOnType = request.RootType;
             else
-                parseOnType = PropertyPath.TryParse(request.RootType, name.ToPascalCase()).PropertyType;
-
-
+                parseOnType = request.RootType.GetEnumerablePropertyType(name, strategy);
 
             for (int i = 0; i < row.Cells.Length; i++)
             {
                 if (excludeCells.Contains(i)) continue;
 
-                var value = row.Cells[i];
-
+                var value = row.Cells[i].Value;
+                var propertyName = map[i].Transform(strategy);
                 object castValue;
 
-                var propertyPath = PropertyPath.TryParse(parseOnType, name.ToPascalCase());
+                var propertyPath = PropertyPath.TryParse(parseOnType, propertyName);
 
                 var convertSucceeded =
                     Converter.TryCreate(value, propertyPath.PropertyType, out castValue);
@@ -119,29 +116,18 @@ namespace SW.ExcelImport.Services
                 {
                     if (castValue != null && castValue.GetType() == typeof(string) &&
                         (castValue as string) == string.Empty)
-                    {
                         castValue = null;
-                    }
-                    values[name.ToPascalCase()] = castValue;
+                    values[propertyName] = castValue;
                 }
                 else
-                {
                     invalidCells.Add(i);
-                }
             }
 
-            var contractResolver = new DefaultContractResolver
-            {
-                NamingStrategy = new SnakeCaseNamingStrategy()
-            };
-            var settings = new JsonSerializerSettings
-            {
-                ContractResolver = contractResolver,
-            };
+            result.InvalidCells = invalidCells.ToArray();
 
             if (invalidCells.Count == 0)
-                result.RowAsJson = JsonConvert.SerializeObject(parseOnType.CreateFromDictionary(values), settings);
-            else result.InvalidCells = invalidCells.ToArray();
+                result.RowAsJson = JsonConvert.SerializeObject(parseOnType.CreateFromDictionary(values), 
+                    JsonUtil.GetSettings(request.NamingStrategy));
 
             return result;
 

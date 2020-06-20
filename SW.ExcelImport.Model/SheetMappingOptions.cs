@@ -9,8 +9,8 @@ namespace SW.ExcelImport.Model
             {
                 SheetIndex = index,
                 Map = null,
-                IdIndex = index == 1 ? 1 : (int?)null,
-                ParentIdIndex = index == 1 ? (int?)null :1,
+                IdIndex = index == 1 ? 0 : (int?)null,
+                ParentIdIndex = index == 1 ? (int?)null :0,
                 IndexAsId = index == 1 ? false : true,
             };
         }

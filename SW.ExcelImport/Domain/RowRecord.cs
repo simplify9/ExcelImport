@@ -37,16 +37,22 @@ namespace SW.ExcelImport.Domain
             RowAsData = parseResult.RowAsData;
             ParseOk = !parseResult.HasErrors();
         }
-        public void FillData(string json)
+        public void FillData(string json, bool isValid)
         {
-            RowAsData = null;
-            Data = json;
-            IsValid = true;
+            IsValid = isValid;
             foreach (var item in Children)
             {
-                item.RowAsData = null;
-                item.IsValid = true;
+                if(isValid)
+                    item.RowAsData = null;
+                
+                item.IsValid = isValid;
             }
+            Data = json;
+            if(isValid)
+                RowAsData = null;
+            
+            
+            
         }
         public long Id { get; private set; }
         public SheetRecord SheetRecord { get; private set; }

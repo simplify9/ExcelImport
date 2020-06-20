@@ -15,7 +15,7 @@ namespace SW.ExcelImport.Services
         readonly ICloudFilesService cloudFilesService;
         private IExcelDataReader reader;
         private Stream stream;
-        private int sheetIndex = 1;
+        //private int sheetIndex = 1;
         private int index = 1;
         private TypedParseToJsonOptions options;
         private bool loaded;
@@ -73,6 +73,7 @@ namespace SW.ExcelImport.Services
                     return Task.FromResult(false);
                 CurrentSheet = Container.Sheets[CurrentSheet.Index];
                 reader.NextResult();
+
                 return ReadRow();
             }
 

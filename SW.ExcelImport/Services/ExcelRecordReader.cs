@@ -7,7 +7,7 @@ namespace SW.ExcelImport.Services
     public class ExcelRecordReader : IExcelReader
     {
         
-        private TypedParseToJsonOptions options;
+        
         private bool loaded;
         readonly IExcelRepo repo;
 

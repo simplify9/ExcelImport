@@ -10,7 +10,26 @@ namespace SW.ExcelImport
 {
     public static class TypeExtensions
     {
-        public static string ToPascalCase(this string s)
+        
+        
+        
+        public static string Transform(this string s, JsonNamingStrategy strategy) =>
+            strategy switch
+            {
+                
+                JsonNamingStrategy.SnakeCase => s.ToPascalCase(),
+                _ => throw new NotImplementedException()
+            };
+        
+        // public static string Transform(this string s, JsonNamingStrategy strategy) =>
+        //     strategy switch => 
+        //     {
+        //         JsonNamingStrategy.SnakeCase => s.ToPascalCase(),
+        //         _ => throw new NotImplementedException()
+        //     }; 
+        
+        
+        private static string ToPascalCase(this string s)
         {
             var yourString = s.ToLower().Replace("_", " ");
             var info = CultureInfo.CurrentCulture.TextInfo;
@@ -21,7 +40,7 @@ namespace SW.ExcelImport
             var obj = Activator.CreateInstance(t);
             foreach (var pair in valueMap)
             {
-                var propertyPath = PropertyPath.TryParse(t, pair.Key.ToPascalCase());
+                var propertyPath = PropertyPath.TryParse(t, pair.Key);
                 if (propertyPath == null)
                 {
                     var msg = string.Format("Property path '{0}' is invalid", pair.Key);

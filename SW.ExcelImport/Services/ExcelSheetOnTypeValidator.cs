@@ -6,60 +6,78 @@ using System.Threading.Tasks;
 
 namespace SW.ExcelImport.Services
 {
-    public class ExcelSheetOnTypeValidator 
+    public class ExcelSheetOnTypeValidator
     {
-        public Task<SheetValidationResult> Validate(ISheet sheet, TypedParseToJsonOptions options)
+        private bool AllowedEnumerableInSheet (Type type) =>
+            type == typeof(string) || type.IsValueType;
+        public Task<SheetValidationResult> Validate(SheetOnTypeParseRequest request)
         {
+            var sheet = request.Sheet;
             if (sheet.Empty || sheet.EmptyData)
-                return Task.FromResult(new SheetValidationResult(false, new int[] { },null,false));
+                return Task.FromResult(SheetValidationResult.EmptySheet());
 
             var invalidName = false;
             var invalidHeaders = new List<int>();
             Type type = null;
 
-            var sheetOptions = GetOptions(sheet, options);
-            var (ignoreFirstRow,headerMap) = GetMap(sheet, sheetOptions);
-
-            var propertyName = sheetOptions.SheetLongName ?? sheet.Name;
+            var sheetOptions = request.MappingOptions;
+            var (ignoreFirstRow, headerMap) = GetMap(sheet, sheetOptions);
 
             if (sheet.Index == 1)
             {
-                type = options.OnType;
+                type = request.RootType;
                 invalidName = false;
             }
             else
             {
-                type = GetType(sheet, sheetOptions, options);
+                type = GetEnumerableType(request.RootType,
+                    request.LongName ?? sheet.Name, request.NamingStrategy);
                 invalidName = type == null;
             }
 
-            var invalidMap = type?.ParsePayloadMap(headerMap) ?? new int[] { };
+            if (!invalidName)
+            {
+                var idHeaders = new List<int>();
+                if(request.MappingOptions.IdIndex.HasValue)
+                    idHeaders.Add(request.MappingOptions.IdIndex.Value);
+                
+                if(request.MappingOptions.ParentIdIndex.HasValue)
+                    idHeaders.Add(request.MappingOptions.ParentIdIndex.Value);
 
-            return Task.FromResult(new SheetValidationResult(invalidName, invalidHeaders.ToArray(),type, ignoreFirstRow ));
+                for (int i = 0; i < headerMap.Length; i++)
+                {
+                    if (idHeaders.Contains(i)) continue;
+                    var propertyName = headerMap[i].Transform(request.NamingStrategy);
+                    var propertyPath = PropertyPath.TryParse(type, propertyName);
+                    if (propertyPath == null) 
+                        invalidHeaders.Add(i);
+                    else
+                    {
+                        var enumerableType = GetEnumerableType(type, propertyName, request.NamingStrategy);
+                        if(enumerableType != null && ! AllowedEnumerableInSheet(enumerableType)  )
+                            invalidHeaders.Add(i);
+                    }
+
+                }
+            }
+
+            var result = new SheetValidationResult(headerMap, ignoreFirstRow, invalidName, invalidHeaders.ToArray());
+            return Task.FromResult(result);
 
         }
 
-        private SheetMappingOptions GetOptions(ISheet sheet, TypedParseToJsonOptions options) =>
-            options.SheetsOptions.FirstOrDefault(o => o.SheetIndex == sheet.Index) ??
-                 SheetMappingOptions.Default(sheet.Index);
-        private (bool,string[]) GetMap(ISheet sheet, SheetMappingOptions options) =>
-            (options.Map !=null, options.Map ?? sheet.Header.Select(x => x.Value.ToString()).ToArray());
 
-        private Type GetType(ISheet sheet, SheetMappingOptions mappingOptions, TypedParseToJsonOptions options)
+        private (bool, string[]) GetMap(ISheet sheet, SheetMappingOptions options) =>
+            (options.Map == null, options.Map ?? sheet.Header.Select(x => x.Value.ToString()).ToArray());
+
+        private Type GetEnumerableType(Type rootType, string propertyName, JsonNamingStrategy strategy)
         {
-            var propertyName = mappingOptions.SheetLongName ?? sheet.Name;
 
-            if (propertyName == null)
-                return null;
-
-            var propertyPath = PropertyPath.TryParse(options.OnType, propertyName.ToPascalCase());
+            var propertyPath = PropertyPath.TryParse(rootType, propertyName.Transform(strategy));
             if (propertyPath == null)
                 return null;
             else
-                return propertyPath.PropertyType;
-
-
-
+                return rootType.GetEnumerablePropertyType(propertyName, strategy);
 
         }
 

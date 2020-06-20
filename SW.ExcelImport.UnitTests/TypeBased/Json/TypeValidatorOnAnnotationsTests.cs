@@ -6,10 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
-
-using System;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,48 +18,16 @@ using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using Newtonsoft.Json.Serialization;
 
-namespace SW.ExcelImport.UnitTests.Validation
+namespace SW.ExcelImport.UnitTests.TypeBased.Json
 {
-    public class Weight
-    {
-        [Required]
-        public string Unit { get; set; }
-        public decimal Value { get; set; }
-    }
-    public class Order
-    {
-        [Required]
-        public string Number { get; set; }
-        [StringLength(10)]
-        public string Customer { get; set; }
-        [Required]
-        public ICollection<Item> Items { get; set; }
-        public ICollection<Other> OtherData { get; set; }
-        public Weight Weight { get; set; }
-
-    }
-
-    public class Item
-    {
-        [Required]
-        [StringLength(10)]
-        public string Name { get; set; }
-        public int Quantity { get; set; }
-    }
-
-    public class Other
-    {
-        public string Prop1 { get; set; }
-        public string Prop2 { get; set; }
-    }
     [TestClass]
     public class TypeValidatorOnAnnotationsTests
     {
         [TestMethod]
-        public async Task TestBasic()
+        public async Task Basic()
         {
-            var contractResolver = new DefaultContractResolver { NamingStrategy = new SnakeCaseNamingStrategy() };
-            var settings = new JsonSerializerSettings { ContractResolver = contractResolver };
+
+            var settings = JsonUtil.GetSettings(JsonNamingStrategy.SnakeCase);
 
 
             var svc = new ExcelRowTypeValidatorOnAnnotations();
@@ -120,9 +85,8 @@ namespace SW.ExcelImport.UnitTests.Validation
             Assert.AreEqual(true, result.IsValid);
         }
 
-
         [TestMethod]
-        public async Task TestInvalid()
+        public async Task Invalid()
         {
             var contractResolver = new DefaultContractResolver { NamingStrategy = new SnakeCaseNamingStrategy() };
             var settings = new JsonSerializerSettings { ContractResolver = contractResolver };

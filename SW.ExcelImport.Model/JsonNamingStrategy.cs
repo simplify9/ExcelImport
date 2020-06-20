@@ -1,4 +1,4 @@
-namespace SW.ExcelImport.Model
+namespace SW.ExcelImport
 {
     public enum JsonNamingStrategy
     {

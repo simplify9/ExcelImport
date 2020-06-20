@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SW.Pmm.Model\SW.Pmm.Model.csproj" />
     <ProjectReference Include="..\SW.ExcelImport.Model\SW.ExcelImport.Model.csproj" />
   </ItemGroup>
 </Project>

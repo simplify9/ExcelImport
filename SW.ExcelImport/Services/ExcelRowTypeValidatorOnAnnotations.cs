@@ -40,11 +40,9 @@ namespace SW.ExcelImport.Services
                 newArray.Add(item);
             }
 
-            var contractResolver = new DefaultContractResolver { NamingStrategy = new SnakeCaseNamingStrategy() };
-            var settings = new JsonSerializerSettings { ContractResolver = contractResolver };
 
             var json = rootObjectJson.ToString();
-            var obj = JsonConvert.DeserializeObject(json, request.OnType, settings);
+            var obj = JsonConvert.DeserializeObject(json, request.OnType, JsonUtil.GetSettings(request.NamingStrategy));
             return (json, obj);
         }
 

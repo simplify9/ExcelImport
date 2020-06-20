@@ -8,31 +8,7 @@ using SW.ExcelImport.Domain;
 
 namespace SW.ExcelImport.Services
 {
-    public class ExcelValidator : IExcelValidator
-    {
-        readonly ExcelRepo repo;
-        readonly ExcelRowValidator<ExcelRowValidateOnTypeRequest, ExcelRowValidationResult> validator;
-        public ExcelValidator(ExcelRepo repo, ExcelRowValidator<ExcelRowValidateOnTypeRequest, ExcelRowValidationResult> validator)
-        {
-            this.repo = repo;
-            this.validator  = validator;
-        }
-        public async Task Process(string reference, TypedParseToJsonOptions parseOptions)
-        {
-            var count = await repo.GetParsedOkCount(reference);
-            for (int i = 0; i <  (count / 10) + 1 ; i++)
-            {
-                var rows = await repo.GetParsedOk(reference, i *10 , 10);
-                foreach (var row in rows)
-                {
-                    var result = await validator.Validate(
-                        new ExcelRowValidateOnTypeRequest( row,parseOptions.OnType, parseOptions.NamingStrategy));
-                    row.FillData(result.Data);
-                }
-                await repo.SaveChanges();
-            }
-        }
-    }
+    
     public class ExcelStorageMap : IExcelStorageMap
     {
         readonly ExcelRepo repo;
@@ -105,7 +81,16 @@ namespace SW.ExcelImport.Services
 
             foreach(var sheet in sheets)
             {
-                var result = await sheetValidator.Validate(sheet, options);
+                var sheetOptions = GetOptions(sheet, options);
+                var request = new SheetOnTypeParseRequest
+                {
+                    LongName = sheetOptions?.SheetLongName,
+                    MappingOptions = sheetOptions,
+                    NamingStrategy = options.NamingStrategy,
+                    RootType = options.OnType,
+                    Sheet = sheet
+                };
+                var result = await sheetValidator.Validate(request);
                 validationResult[sheet.Index] = result;
 
             }
@@ -118,5 +103,8 @@ namespace SW.ExcelImport.Services
             return (hasErrors  , excelRecord);
 
         }
+        private SheetMappingOptions GetOptions(ISheet sheet, TypedParseToJsonOptions options) =>
+            options.SheetsOptions.FirstOrDefault(o => o.SheetIndex == sheet.Index) ??
+                 SheetMappingOptions.Default(sheet.Index);
     }
 }
