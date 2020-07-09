@@ -1,4 +1,4 @@
-namespace SW.ExcelImport.Domain
+namespace SW.ExcelImport.Entity
 {
     public class CellRecord: ICell
     {

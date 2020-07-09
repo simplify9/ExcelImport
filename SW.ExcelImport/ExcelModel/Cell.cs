@@ -4,19 +4,19 @@ namespace SW.ExcelImport
 {
     public class Cell: ICell
     {
-        readonly int index;
-        
-        readonly IExcelDataReader reader;
         public Cell(int index, IExcelDataReader reader)
         {
-            this.index = index;
-            this.reader= reader;
+            Type = reader.GetFieldType(index)?.GetType().Name;
+            Value = reader.GetValue(index);
+            NumberFormatIndex = reader.GetNumberFormatIndex(index);
+            NumberFormatString = reader.GetNumberFormatString(index);
+
         }
         
-        public string Type => reader.GetFieldType(index)?.GetType().Name;
-        public object Value => reader.GetValue(index);
-        public int NumberFormatIndex => reader.GetNumberFormatIndex(index);
-        public string NumberFormatString => reader.GetNumberFormatString(index);
+        public string Type { get; } 
+        public object Value { get; } 
+        public int NumberFormatIndex { get; } 
+        public string NumberFormatString { get; } 
 
     }
 

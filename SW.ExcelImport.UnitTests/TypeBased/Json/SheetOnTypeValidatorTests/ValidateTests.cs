@@ -1,7 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SW.ExcelImport.Model;
 using SW.ExcelImport.Services;
 using Newtonsoft.Json;
 
@@ -14,7 +13,7 @@ namespace SW.ExcelImport.UnitTests.TypeBased.Json.SheetOnTypeValidatorTests
         [TestMethod]
         public async Task Basic()
         {
-            var sheet = Utils.GetSheet(1, "sheet1",
+            var sheet = Utils.GetSheet(0, "sheet1",
                 new object[] { "number", "user_number", "customer", "emails", "phones" });
 
             var request = new SheetOnTypeParseRequest
@@ -42,7 +41,7 @@ namespace SW.ExcelImport.UnitTests.TypeBased.Json.SheetOnTypeValidatorTests
         [TestMethod]
         public async Task InvalidBasic()
         {
-            var sheet = Utils.GetSheet(1, "sheet1",
+            var sheet = Utils.GetSheet(0, "sheet1",
                 new object[] { "Id", "number", "user_number", "customer", "emails", "phones", "items" });
 
             var request = new SheetOnTypeParseRequest

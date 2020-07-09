@@ -15,11 +15,13 @@ namespace SW.ExcelImport
         public ExcelRowValidationResult(List<ValidationResult> errors)
         {
             IsValid = false;
-            //errors.Select(e => e.)
+            ValidationErrors = errors.Select(x => x.ErrorMessage).ToArray();
         }
         public string Data { get; }
 
         public bool? IsValid { get; }
+
+        public string[] ValidationErrors { get; }
     }
 
 }

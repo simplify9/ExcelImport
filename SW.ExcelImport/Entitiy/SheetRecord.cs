@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System;
 
-namespace SW.ExcelImport.Domain
+namespace SW.ExcelImport.Entity
 {
     public class SheetRecord: ISheet
     {
@@ -27,6 +27,7 @@ namespace SW.ExcelImport.Domain
         }
         public long Id { get; set; }
         public ExcelFileRecord ExcelFileRecord {get; private set;}
+        public int ParentId { get; set; }
         public int Index { get; private set; }
         
         public string Name { get; private set;}
@@ -44,9 +45,7 @@ namespace SW.ExcelImport.Domain
         public bool IgnoreFirstRow { get; }
 
         public ICell[] Header => HeaderCellRecords;
-
         public ISheetContainer Parent => ExcelFileRecord;
-
-
+        
     }
 }

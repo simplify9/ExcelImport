@@ -24,8 +24,15 @@ namespace SW.ExcelImport.Services
 
         public virtual (string, object) ConvertToObject(ExcelRowValidateOnTypeRequest request)
         {
-            var rootObjectJson = JObject.Parse(request.Row.RowAsData);
 
+            if(request.RelatedRows == null || request.RelatedRows.Count() == 0)
+            {
+                var simpleObject = JsonConvert.DeserializeObject(request.Row.RowAsData, request.OnType, JsonUtil.GetSettings(request.NamingStrategy));
+                return (request.Row.RowAsData, simpleObject);
+            }
+                
+            var rootObjectJson = JObject.Parse(request.Row.RowAsData);
+            
             foreach (var sheetName in request.RelatedRows.Select(r => r.Sheet.Name).Distinct())
             {
                 rootObjectJson.Property(sheetName).Remove();

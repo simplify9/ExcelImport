@@ -1,50 +1,62 @@
+using System.ComponentModel.Design;
 using System.Xml.Linq;
 using System.IO;
 using System;
 using SW.PrimitiveTypes;
-using SW.ExcelImport.Model;
 using System.Threading.Tasks;
 using ExcelDataReader;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace SW.ExcelImport.Services
 {
     
-    public class ExcelFileReader : IExcelReader
+    public class ExcelFileReader : IExcelReader , IDisposable
     {
-        readonly ICloudFilesService cloudFilesService;
         private IExcelDataReader reader;
         private Stream stream;
         //private int sheetIndex = 1;
-        private int index = 1;
-        private TypedParseToJsonOptions options;
+        private int index = 0;
         private bool loaded;
-        
+        readonly ICloudFilesService cloudFilesService;
+
         public ExcelFileReader(ICloudFilesService cloudFilesService)
         {
             this.cloudFilesService = cloudFilesService;
-        }
+        }        
+        
 
-        public async Task Load(string url,  TypedParseToJsonOptions options)
+        public async Task<ISheetContainer> Load(string url, ICollection<SheetMappingOptions> sheetsOptions)
         {
-
-            if (reader == null)
-            {
-                stream = await cloudFilesService.OpenReadAsync(url);
-                reader = ExcelReaderFactory.CreateReader(stream);
-            }
-            else
-            {
-                reader.Reset();
-            }
+            
+            stream = await cloudFilesService.OpenReadAsync(url);
+            reader = ExcelReaderFactory.CreateReader(stream);
 
             loaded = true;
-            this.options = options;
             
+            if(reader.ResultsCount == 0) return null;
+
+            var sheets = new ISheet[reader.ResultsCount];
+
+            var result = new SheetContainer(url, sheets);
+
+            for (int i = 0; i < sheets.Length; i++)
+            {
+                var ignoreHeader = true;
+                var options = sheetsOptions?.FirstOrDefault(o => o.SheetIndex == i) ?? SheetMappingOptions.Default(i);
+                if(options.Map != null)
+                    ignoreHeader = false;
+                reader.Read();
+                var sheet = new Sheet(reader, result, i,ignoreHeader);
+                result.Sheets[i] = sheet;
+                reader.NextResult();
+            }
+            Container = result;
             CurrentSheet = Container.Sheets[0];
+            reader.Reset();
 
+            return result;
         }
-
 
         public ISheet CurrentSheet { get; private set; }
 
@@ -69,27 +81,20 @@ namespace SW.ExcelImport.Services
 
             if (!found)
             {
-                if(reader.ResultsCount == CurrentSheet.Index)
+                if(reader.ResultsCount == CurrentSheet.Index + 1)
                     return Task.FromResult(false);
-                CurrentSheet = Container.Sheets[CurrentSheet.Index];
+                CurrentSheet = Container.Sheets[CurrentSheet.Index + 1];
                 reader.NextResult();
-
+                index = 0;
                 return ReadRow();
             }
-
+            index++;
             Current = new ExcelRow(index, CurrentSheet, reader);
             return Task.FromResult(true);
 
         }
 
-        public Task<bool> ReadRow(int sheetIndex, int startOnRow)
-        {
-            throw new NotImplementedException();
-        }
 
-        public Task<bool> ReadRow(string sheetName, int startOnRow)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }

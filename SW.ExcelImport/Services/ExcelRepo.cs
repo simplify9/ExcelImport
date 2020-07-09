@@ -6,15 +6,15 @@ using System.Linq;
 using System.Globalization;
 using System.Data;
 using System.Threading.Tasks;
-using SW.ExcelImport.Domain;
+using SW.ExcelImport.Entity;
 
 namespace SW.ExcelImport.Services
 {
-    public class ExcelRepo : IExcelRepo
+    
+    public class ExcelRepo 
     {
         readonly DbContext db;
 
-        private List<ISheet> added = new List<ISheet>();
         public ExcelRepo(DbContext db)
         {
             this.db = db;
@@ -23,32 +23,15 @@ namespace SW.ExcelImport.Services
         public async Task<long?> RowRecordExists(ISheet sheet, int identifier)
         {
             var result = await db.Set<RowRecord>().Where(x => x.UserDefinedId == identifier &&
-                x.Sheet.Name == sheet.Name &&
-                x.Sheet.Parent.Reference == sheet.Parent.Reference).Select(r => r.Id).FirstOrDefaultAsync();
+                x.SheetRecord.Name == sheet.Name &&
+                x.SheetRecord.ExcelFileRecord.Reference == sheet.Parent.Reference).Select(r => r.Id).FirstOrDefaultAsync();
             return result == 0 ? (long?)null : result;
-        }
-
-        public async Task<ISheetContainer> CreateExcelFileRecordIfNotExists(ISheetContainer container, IDictionary<int, SheetValidationResult> sheetsValidationResult)
-        {
-            //db.Set
-            var exists = await db.Set<ExcelFileRecord>().Include(x => x.SheetRecords).
-                FirstOrDefaultAsync(r => r.Reference == container.Reference);
-
-            if (exists != null)
-                return exists;
-
-
-            var record = new ExcelFileRecord(container.Reference, container.Sheets, sheetsValidationResult);
-            db.Add(record);
-            await db.SaveChangesAsync();
-
-            return record;
         }
 
         public async Task<IEnumerable<RowRecord>> GetParsedOk(string reference, int skip, int take)
         {
             var query = GetParsedOk(reference);
-            query = query.Include(x => x.Children).ThenInclude(x => x.Sheet);
+            query = query.Include(x => x.Children).ThenInclude(x => x.SheetRecord);
             var result = await query.Skip(skip).Take(take).OrderBy(x => x.Index).ToListAsync();
             return result;
         }
@@ -63,18 +46,16 @@ namespace SW.ExcelImport.Services
 
         private IQueryable<RowRecord> GetParsedOk(string reference)
         {
-            return db.Set<RowRecord>().Where(x => x.Sheet.Parent.Reference == reference &&
-                x.ParseOk == true && x.Children.All(c => c.ParseOk == true) && x.Sheet.Index == 1);
+            return db.Set<RowRecord>().Where(x => x.SheetRecord.ExcelFileRecord.Reference == reference &&
+                x.ParseOk == true && x.Children.All(c => c.ParseOk == true) && x.SheetRecord.Index == 0);
         }
 
-        private IQueryable<RowRecord> GetParsed(string reference)
+        public async Task AddExcelSheetFile(ExcelFileRecord record)
         {
-            return db.Set<RowRecord>().Where(x => x.Sheet.Parent.Reference == reference &&
-                x.ParseOk != null && x.Children.All(c => c.ParseOk != null) && x.Sheet.Index == 1);
+            db.Add(record);
+            await SaveChanges();
         }
-
-
-        public void Add(IExcelRow row, ISheet sheet, IExcelRowParseResult parseResult = null)
+        public RowRecord Add(IExcelRow row, ISheet sheet, IExcelRowParseResult parseResult)
         {
             if (row == null)
                 throw new ArgumentNullException(nameof(row));
@@ -88,18 +69,11 @@ namespace SW.ExcelImport.Services
             if (sheetRecord == null)
                 throw new ArgumentException("could not cast sheet as SheetRecord");
 
-            var existingRow = row as RowRecord;
-            if (existingRow == null)
-            {
+            var rowRecord = new RowRecord(row, sheetRecord, parseResult);
+            db.Add(rowRecord);
+            return rowRecord;
 
-                var rowRecord = parseResult == null ?
-                    new RowRecord(row, sheetRecord) : new RowRecord(row, sheetRecord, parseResult);
-                db.Add(rowRecord);
-            }
-            else
-            {
-                existingRow.FillParseResult(parseResult);
-            }
+            
 
         }
         public async Task SaveChanges()
@@ -113,7 +87,11 @@ namespace SW.ExcelImport.Services
                 .ToList();
 
             foreach (var entry in changedEntriesCopy)
-                entry.State = EntityState.Detached;
+            {
+                if(entry.Entity.GetType() != typeof(ExcelFileRecord) && entry.Entity.GetType() != typeof(SheetRecord))
+                    entry.State = EntityState.Detached;
+            }
+                
         
         }
 

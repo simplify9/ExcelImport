@@ -1,18 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using SW.ExcelImport.Model;
+using ExcelDataReader;
 
 namespace SW.ExcelImport
 {
     public interface IExcelReader: IDisposable
     {
-        Task Load(string url, TypedParseToJsonOptions options);
-        ISheetContainer Container { get; }
-        ISheet CurrentSheet { get; }
+        Task<ISheetContainer> Load(string url, ICollection<SheetMappingOptions> sheetsOptions);
         IExcelRow Current { get; }
         Task<bool> ReadRow();
-        Task<bool> ReadRow(int sheetIndex, int startOnRow);
-        Task<bool> ReadRow(string sheetName, int startOnRow);
-
     }
 }

@@ -1,5 +1,5 @@
 using System.Data;
-namespace SW.ExcelImport.Model
+namespace SW.ExcelImport
 {
     public class SheetMappingOptions
     {
@@ -9,9 +9,9 @@ namespace SW.ExcelImport.Model
             {
                 SheetIndex = index,
                 Map = null,
-                IdIndex = index == 1 ? 0 : (int?)null,
-                ParentIdIndex = index == 1 ? (int?)null :0,
-                IndexAsId = index == 1 ? false : true,
+                IdIndex = index == 0 ? 0 : (int?)null,
+                ParentIdIndex = index == 0 ? (int?)null :0,
+                IndexAsId = index == 0 ? false : true,
             };
         }
         
@@ -19,7 +19,8 @@ namespace SW.ExcelImport.Model
         public string[] Map { get; set; }
         public int? IdIndex { get; set; }
         public int? ParentIdIndex { get; set; }
-        public string SheetLongName { get; set; }
+        public string SheetName { get; set; }
         public bool IndexAsId { get; set; }
+        public int? ParenSheetIndex { get; set; }
     }
 }

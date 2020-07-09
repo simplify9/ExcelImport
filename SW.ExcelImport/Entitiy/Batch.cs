@@ -1,6 +1,6 @@
 using SW.PrimitiveTypes;
 
-namespace SW.ExcelImport.Domain
+namespace SW.ExcelImport.Entity
 {
     public class Batch: BaseEntity
     {

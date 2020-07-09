@@ -6,6 +6,7 @@ namespace SW.ExcelImport
     {
         string Data { get; } 
         bool? IsValid { get; }
+        string[] ValidationErrors { get; }
         //IDictionary<string,string> Errors { get; }
     }
 }

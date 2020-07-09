@@ -8,4 +8,5 @@ namespace SW.ExcelImport
     {
         public abstract Task<TResult>  Parse(TRequest request);
     }
+    
 }

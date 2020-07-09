@@ -28,7 +28,7 @@ namespace SW.ExcelImport
 
         public void Populate(CellsParseReult result)
         {
-            RowAsData = result.RowAsJson;
+            RowAsData = result.RowMapped;
             InvalidCells = result.InvalidCells;
         }
 
@@ -36,6 +36,7 @@ namespace SW.ExcelImport
         {
             IdDuplicate = result.IdDuplicate;
             ForeignIdNotFound = result.ForeignIdNotFound;
+            ForeignId = result.ForeignId;
 
         }
     }

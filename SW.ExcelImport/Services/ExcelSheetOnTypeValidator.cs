@@ -1,11 +1,13 @@
 using System.Linq;
 using System.Collections.Generic;
 using System;
-using SW.ExcelImport.Model;
 using System.Threading.Tasks;
+using ExcelDataReader;
+using System.IO;
 
 namespace SW.ExcelImport.Services
 {
+
     public class ExcelSheetOnTypeValidator
     {
         private bool AllowedEnumerableInSheet (Type type) =>
@@ -23,7 +25,7 @@ namespace SW.ExcelImport.Services
             var sheetOptions = request.MappingOptions;
             var (ignoreFirstRow, headerMap) = GetMap(sheet, sheetOptions);
 
-            if (sheet.Index == 1)
+            if (sheet.Index == 0)
             {
                 type = request.RootType;
                 invalidName = false;

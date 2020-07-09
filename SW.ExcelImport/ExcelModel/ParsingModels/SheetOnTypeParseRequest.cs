@@ -1,5 +1,4 @@
 using System;
-using SW.ExcelImport.Model;
 
 namespace SW.ExcelImport
 {

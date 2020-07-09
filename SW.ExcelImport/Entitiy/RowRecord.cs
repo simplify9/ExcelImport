@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-namespace SW.ExcelImport.Domain
+namespace SW.ExcelImport.Entity
 {
     public class RowRecord: IExcelRow, IExcelRowParsed, IExcelRowValidated
     {
@@ -37,9 +37,15 @@ namespace SW.ExcelImport.Domain
             RowAsData = parseResult.RowAsData;
             ParseOk = !parseResult.HasErrors();
         }
-        public void FillData(string json, bool isValid)
+        public void FillData(string json, bool isValid, string[] errors = null)
         {
             IsValid = isValid;
+            Data = json;
+            if(isValid)
+                RowAsData = null;
+            ValidationErrors = errors;
+            if(Children == null) return;
+            
             foreach (var item in Children)
             {
                 if(isValid)
@@ -47,11 +53,7 @@ namespace SW.ExcelImport.Domain
                 
                 item.IsValid = isValid;
             }
-            Data = json;
-            if(isValid)
-                RowAsData = null;
-            
-            
+
             
         }
         public long Id { get; private set; }
@@ -76,6 +78,8 @@ namespace SW.ExcelImport.Domain
         public bool? IsValid { get; private set; }
 
         public bool? ParseOk { get; private set; }
+
+        public string[] ValidationErrors { get; private set; }
     }
 
     

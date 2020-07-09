@@ -6,23 +6,44 @@ namespace SW.ExcelImport
 {
     public static class Converter
     {
+        public static object GetDefault(this Type type)
+        {
+            if (type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+            return null;
+        }
         public static bool TryCreate(object value, Type resultType, out object result)
         {
             if (resultType == null) throw new ArgumentNullException(nameof(resultType));
             result = null;
+            
+            if(value == null)
+            {
+                if(!resultType.IsValueType)
+                    return true;
+                
+                if(Activator.CreateInstance(resultType) == null)
+                    return true;
+                else 
+                    return false;
+            }
+                
+            
             var sourceType = value.GetType();
-            
-            if(sourceType == resultType)
+
+            if (sourceType == resultType)
             {
                 result = value;
                 return true;
             }
-            if(sourceType == typeof(DateTime) && resultType == typeof(DateTime?))
+            if (sourceType == typeof(DateTime) && resultType == typeof(DateTime?))
             {
                 result = value;
                 return true;
             }
-            
+
             var rawValue = value.ToString();
 
             if (resultType.Equals(typeof(string)))
@@ -117,14 +138,14 @@ namespace SW.ExcelImport
                 }
             }
 
-            if(resultType.Equals(typeof(string[])))
+            if (resultType.Equals(typeof(string[])))
             {
-                
-                result = rawValue?.Split(new char[]{';'});
+
+                result = rawValue?.Split(new char[] { ';' });
                 return true;
             }
             result = null;
-            return false;  
+            return false;
         }
     }
 }

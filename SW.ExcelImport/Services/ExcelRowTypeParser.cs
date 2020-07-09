@@ -1,11 +1,10 @@
 using System.ComponentModel.Design;
 using System.Linq;
 using System;
-using SW.ExcelImport.Model;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using SW.ExcelImport.Domain;
+using SW.ExcelImport.Entity;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -13,8 +12,8 @@ namespace SW.ExcelImport.Services
 {
     public class ExcelRowTypeParser : ExcelRowParser<ExcelRowParseOnTypeRequest, ExcelRowParseResult>
     {
-        readonly IExcelRepo repo;
-        public ExcelRowTypeParser(IExcelRepo repo)
+        readonly ExcelRepo repo;
+        public ExcelRowTypeParser(ExcelRepo repo)
         {
             this.repo = repo;
         }
@@ -90,11 +89,11 @@ namespace SW.ExcelImport.Services
             var row = request.Row;
             var sheet = row.Sheet;
             Type parseOnType = null;
-            var name = request.Options.SheetLongName ?? sheet.Name;
-            var map = request.Options.Map;
+            var name = request.Options.SheetName ?? sheet.Name;
+            var map = request.Options.Map ?? row.Sheet.Header.Select(x => x.Value.ToString()).ToArray() ;
             var strategy = request.NamingStrategy;
 
-            if (sheet.Index == 1)
+            if (sheet.Index == 0)
                 parseOnType = request.RootType;
             else
                 parseOnType = request.RootType.GetEnumerablePropertyType(name, strategy);
@@ -126,7 +125,7 @@ namespace SW.ExcelImport.Services
             result.InvalidCells = invalidCells.ToArray();
 
             if (invalidCells.Count == 0)
-                result.RowAsJson = JsonConvert.SerializeObject(parseOnType.CreateFromDictionary(values), 
+                result.RowMapped = JsonConvert.SerializeObject(parseOnType.CreateFromDictionary(values), 
                     JsonUtil.GetSettings(request.NamingStrategy));
 
             return result;
@@ -146,7 +145,7 @@ namespace SW.ExcelImport.Services
 
             if (parseResult.ForeignUserDefinedId.HasValue)
             {
-                var found = await repo.RowRecordExists(request.Row.Sheet.Parent.Sheets.FirstOrDefault(x => x.Index == 1)
+                var found = await repo.RowRecordExists(request.Row.Sheet.Parent.Sheets.FirstOrDefault(x => x.Index == 0)
                     , parseResult.ForeignUserDefinedId.Value);
                 if (!found.HasValue)
                     result.ForeignIdNotFound = true;

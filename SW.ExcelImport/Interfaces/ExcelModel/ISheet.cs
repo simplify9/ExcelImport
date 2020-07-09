@@ -18,6 +18,9 @@
         bool Empty { get; }
         bool EmptyData { get; }
         int RowCount { get; }
+        bool InvalidName { get;  } 
+        int[] InvalidHeaders { get; }
+        bool IgnoreFirstRow { get; }
 
     }
 }

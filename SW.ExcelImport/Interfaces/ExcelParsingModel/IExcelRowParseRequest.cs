@@ -1,5 +1,3 @@
-using SW.ExcelImport.Model;
-
 namespace SW.ExcelImport
 {
     public interface IExcelRowParseRequest

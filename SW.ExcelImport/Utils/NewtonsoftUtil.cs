@@ -1,6 +1,5 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using SW.ExcelImport.Model;
 
 namespace SW.ExcelImport
 {

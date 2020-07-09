@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SW.ExcelImport.UnitTests.TypeBased
 {
-       public class Weight
+    public class Weight
     {
         [Required]
         public string Unit { get; set; }
@@ -17,8 +17,8 @@ namespace SW.ExcelImport.UnitTests.TypeBased
         [StringLength(10)]
         public string Customer { get; set; }
 
-        public string[] Emails {get; set;}
-        public string[] People {get; set;}
+        public string[] Emails { get; set; }
+        public string[] People { get; set; }
         public int[] Phones { get; set; }
         [Required]
         public ICollection<Item> Items { get; set; }

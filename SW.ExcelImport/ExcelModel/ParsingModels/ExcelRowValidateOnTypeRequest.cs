@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
-using SW.ExcelImport.Domain;
-using SW.ExcelImport.Model;
+using SW.ExcelImport.Entity;
 
 namespace SW.ExcelImport
 {
