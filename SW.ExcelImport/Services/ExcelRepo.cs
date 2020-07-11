@@ -55,6 +55,13 @@ namespace SW.ExcelImport.Services
             db.Add(record);
             await SaveChanges();
         }
+
+        public async Task MarkFileValidated(string reference)
+        {
+            var record = await db.Set<ExcelFileRecord>().FirstOrDefaultAsync(r => r.Reference == reference);
+            record.ValidationComplete = true;
+            await SaveChanges();
+        }
         public RowRecord Add(IExcelRow row, ISheet sheet, IExcelRowParseResult parseResult)
         {
             if (row == null)

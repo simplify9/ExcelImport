@@ -77,6 +77,9 @@ namespace SW.ExcelImport.Services
 
                 await repo.SaveChanges();
             };
+
+            container.ParseComplete = true;
+            await repo.SaveChanges();
             
         }
 
@@ -95,6 +98,9 @@ namespace SW.ExcelImport.Services
                 }
                 await repo.SaveChanges();
             }
+
+            await repo.MarkFileValidated(reference);
+            
         }
     }
 }
