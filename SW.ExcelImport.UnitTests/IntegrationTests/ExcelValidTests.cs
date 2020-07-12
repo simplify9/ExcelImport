@@ -70,15 +70,24 @@ namespace SW.ExcelImport.UnitTests.Integration
                 NamingStrategy = JsonNamingStrategy.SnakeCase
             };
             await svc.Import("validbig" , options);
+
+            var querySvc = new ExcelQueryable(db);
+            var result = await querySvc.GetParsed(new ExcelQueryParsedOptions { Reference = "validbig" });
+            Assert.AreEqual(47, result.TotalCount);
+
             await svc.Process("validbig" , options);
 
             var recordCount =await  db.Set<RowRecord>().CountAsync(x => x.IsValid ==null);
 
-            Assert.AreEqual(0, recordCount);
+            Assert.AreEqual(1, recordCount);
 
             recordCount =await  db.Set<RowRecord>().CountAsync(x => x.Data !=null);
             
-            Assert.AreEqual(22, recordCount);
+            Assert.AreEqual(26, recordCount);
+
+            var validationResult = await querySvc.GetValidated(new ExcelQueryValidatedOptions { Reference = "validbig" });
+            Assert.AreEqual(22, validationResult.TotalCount);
+            
 
         }
     }

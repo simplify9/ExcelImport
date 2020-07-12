@@ -24,6 +24,7 @@ namespace SW.ExcelImport.IServiceCollectionExtensions
             serviceCollection.AddTransient<ExcelRowTypeValidatorOnAnnotations>();
             serviceCollection.AddTransient<ExcelService>();
             serviceCollection.AddTransient<ExcelSheetOnTypeValidator>();
+            serviceCollection.AddTransient<IExcelQueryable, ExcelQueryable>();
             return serviceCollection;
 
         }
