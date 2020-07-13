@@ -72,7 +72,7 @@ namespace SW.ExcelImport.EF
         public static void AddExcelImport(this ModelBuilder b, string schemaName = "excel")
         {
             var excelFile = b.Entity<ExcelFileRecord>();
-            excelFile.ToTable("ExcelFile", schemaName);
+            excelFile.ToTable("ExcelFiles", schemaName);
 
             excelFile.Property(x => x.Reference).HasMaxLength(50).IsUnicode().IsRequired();
             excelFile.OwnsOne( x=> x.ProcessOptionsObject);
@@ -82,7 +82,7 @@ namespace SW.ExcelImport.EF
             excelFile.HasMany(x => x.SheetRecords).WithOne(x => x.ExcelFileRecord).HasForeignKey( x=> x.ParentId);
 
             var sheet = b.Entity<SheetRecord>();
-            sheet.ToTable("Sheet", schemaName);
+            sheet.ToTable("Sheets", schemaName);
             sheet.HasKey(x => x.Id);
             sheet.HasIndex(x => new { x.ParentId, x.Index }).IsUnique();
             sheet.HasIndex(x => new { x.ParentId, x.Name }).IsUnique();
@@ -94,6 +94,7 @@ namespace SW.ExcelImport.EF
             sheet.Ignore(x => x.Parent);
 
             var record = b.Entity<RowRecord>();
+            record.ToTable("SheetRows", schemaName);
             record.HasKey(x => x.Id);
             record.HasOne(x => x.SheetRecord).WithMany();
             record.HasOne(x => x.Parent).WithMany(x => x.Children).HasForeignKey(x => x.ForeignId);
