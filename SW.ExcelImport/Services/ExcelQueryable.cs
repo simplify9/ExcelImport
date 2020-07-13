@@ -45,7 +45,7 @@ namespace SW.ExcelImport.Services
 
             var count = await query.CountAsync();
 
-            query = query.Skip(pageIndex).Take(pageSize);
+            query = query.OrderBy(r => r.SheetRecord.Index).ThenBy(r => r.Index).Skip(pageIndex).Take(pageSize);
 
             var result = await query.ToListAsync();
 
@@ -80,7 +80,7 @@ namespace SW.ExcelImport.Services
 
             var count = await query.CountAsync();
 
-            query = query.Skip(pageIndex).Take(pageSize);
+            query = query.OrderBy(r => r.SheetRecord.Index).ThenBy(r => r.Index).Skip(pageIndex).Take(pageSize);
 
             var result = await query.ToListAsync();
 

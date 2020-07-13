@@ -94,7 +94,7 @@ namespace SW.ExcelImport.Services
 
             foreach (var entry in changedEntriesCopy)
             {
-                if(entry.Entity.GetType() != typeof(ExcelFileRecord) && entry.Entity.GetType() != typeof(SheetRecord))
+                if(entry.Entity.GetType() == typeof(RowRecord))
                     entry.State = EntityState.Detached;
             }
                 
