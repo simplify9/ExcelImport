@@ -67,8 +67,10 @@ namespace SW.ExcelImport.Services
 
         public void Dispose()
         {
-            stream.Dispose();
-            reader.Dispose();
+            if(stream != null)
+                stream.Dispose();
+            if(reader != null)
+                reader.Dispose();
         }
 
         public Task<bool> ReadRow()
