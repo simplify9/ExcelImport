@@ -1,3 +1,4 @@
+using System.Linq;
 using System.ComponentModel;
 using System;
 
@@ -12,7 +13,7 @@ namespace SW.ExcelImport.Entity
         
         public SheetRecord(ExcelFileRecord parent, ISheet sheet, SheetValidationResult validationResult)
         {
-            //Parent = parent ?? throw new ArgumentNullException(nameof(parent));
+            ExcelFileRecord = parent ?? throw new ArgumentNullException(nameof(parent));
             Index = sheet.Index;
             
             Name = sheet.Name;
@@ -23,6 +24,7 @@ namespace SW.ExcelImport.Entity
             InvalidHeaders = validationResult.InvalidHeaders;
             Map = validationResult.Map;
             IgnoreFirstRow = validationResult.IgnoreFirstRow;
+            HeaderCellRecords = sheet.Header?.Select( x=> new CellRecord(x)).ToArray();
 
         }
         public long Id { get; set; }

@@ -6,7 +6,7 @@ namespace SW.ExcelImport
     {
         public Cell(int index, IExcelDataReader reader)
         {
-            Type = reader.GetFieldType(index)?.GetType().Name;
+            Type = reader.GetFieldType(index)?.Name;
             Value = reader.GetValue(index);
             NumberFormatIndex = reader.GetNumberFormatIndex(index);
             NumberFormatString = reader.GetNumberFormatString(index);
