@@ -61,34 +61,34 @@ namespace SW.ExcelImport.UnitTests.Integration
 
         }
         
-        [TestMethod]
-        public async Task ParseAndValidateBig()
-        {
-            var options = new TypedParseToJsonOptions 
-            {
-                AssemblyQualifiedTypeName = typeof(Order).AssemblyQualifiedName,
-                NamingStrategy = JsonNamingStrategy.SnakeCase
-            };
-            await svc.Import("validbig" , options);
+        // [TestMethod]
+        // public async Task ParseAndValidateBig()
+        // {
+        //     var options = new TypedParseToJsonOptions 
+        //     {
+        //         AssemblyQualifiedTypeName = typeof(Order).AssemblyQualifiedName,
+        //         NamingStrategy = JsonNamingStrategy.SnakeCase
+        //     };
+        //     await svc.Import("validbig" , options);
 
-            var querySvc = new ExcelQueryable(db);
-            var result = await querySvc.GetParsed(new ExcelQueryParsedOptions { Reference = "validbig" });
-            Assert.AreEqual(47, result.TotalCount);
+        //     var querySvc = new ExcelQueryable(db);
+        //     var result = await querySvc.GetParsed(new ExcelQueryParsedOptions { Reference = "validbig" });
+        //     Assert.AreEqual(47, result.TotalCount);
 
-            await svc.Process("validbig" , options);
+        //     await svc.Process("validbig" , options);
 
-            var recordCount =await  db.Set<RowRecord>().CountAsync(x => x.IsValid ==null);
+        //     var recordCount =await  db.Set<RowRecord>().CountAsync(x => x.IsValid ==null);
 
-            Assert.AreEqual(1, recordCount);
+        //     Assert.AreEqual(1, recordCount);
 
-            recordCount =await  db.Set<RowRecord>().CountAsync(x => x.Data !=null);
+        //     recordCount =await  db.Set<RowRecord>().CountAsync(x => x.Data !=null);
             
-            Assert.AreEqual(26, recordCount);
+        //     Assert.AreEqual(26, recordCount);
 
-            var validationResult = await querySvc.GetValidated(new ExcelQueryValidatedOptions { Reference = "validbig" });
-            Assert.AreEqual(22, validationResult.TotalCount);
+        //     var validationResult = await querySvc.GetValidated(new ExcelQueryValidatedOptions { Reference = "validbig" });
+        //     Assert.AreEqual(22, validationResult.TotalCount);
             
 
-        }
+        // }
     }
 }

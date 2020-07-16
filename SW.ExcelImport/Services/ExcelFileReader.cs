@@ -18,6 +18,7 @@ namespace SW.ExcelImport.Services
         //private int sheetIndex = 1;
         private int index = 0;
         private bool loaded;
+        private string url;
         readonly ICloudFilesService cloudFilesService;
 
         public ExcelFileReader(ICloudFilesService cloudFilesService)
@@ -28,15 +29,15 @@ namespace SW.ExcelImport.Services
 
         public async Task<ISheetContainer> Load(string url, ICollection<SheetMappingOptions> sheetsOptions)
         {
+            this.url = url;
+            using var tmpStream = await cloudFilesService.OpenReadAsync(url);
             
-            stream = await cloudFilesService.OpenReadAsync(url);
-            reader = ExcelReaderFactory.CreateReader(stream);
-
-            loaded = true;
+            using var tmpReader = ExcelReaderFactory.CreateReader(tmpStream); 
             
-            if(reader.ResultsCount == 0) return null;
+            
+            if(tmpReader.ResultsCount == 0) return null;
 
-            var sheets = new ISheet[reader.ResultsCount];
+            var sheets = new ISheet[tmpReader.ResultsCount];
 
             var result = new SheetContainer(url, sheets);
 
@@ -46,16 +47,18 @@ namespace SW.ExcelImport.Services
                 var options = sheetsOptions?.FirstOrDefault(o => o.SheetIndex == i) ?? SheetMappingOptions.Default(i);
                 if(options.Map != null)
                     ignoreHeader = false;
-                reader.Read();
-                var sheet = new Sheet(reader, result, i,ignoreHeader);
+                tmpReader.Read();
+                var sheet = new Sheet(tmpReader, result, i,ignoreHeader);
                 result.Sheets[i] = sheet;
-                reader.NextResult();
+                tmpReader.NextResult();
             }
             Container = result;
             CurrentSheet = Container.Sheets[0];
-            reader.Reset();
+
+
 
             return result;
+            
         }
 
         public ISheet CurrentSheet { get; private set; }
@@ -73,10 +76,14 @@ namespace SW.ExcelImport.Services
                 reader.Dispose();
         }
 
-        public Task<bool> ReadRow()
+        public async Task<bool> ReadRow()
         {
             if (!loaded)
-                throw new InvalidOperationException("Excel sheet not loaded");
+            {
+                stream = await cloudFilesService.OpenReadAsync(url);
+                reader = ExcelReaderFactory.CreateReader(stream);
+                loaded = true;
+            }
 
             var found = reader.Read();
 
@@ -84,15 +91,15 @@ namespace SW.ExcelImport.Services
             if (!found)
             {
                 if(reader.ResultsCount == CurrentSheet.Index + 1)
-                    return Task.FromResult(false);
+                    return false;
                 CurrentSheet = Container.Sheets[CurrentSheet.Index + 1];
                 reader.NextResult();
                 index = 0;
-                return ReadRow();
+                return await ReadRow();
             }
             index++;
             Current = new ExcelRow(index, CurrentSheet, reader);
-            return Task.FromResult(true);
+            return true;
 
         }
 
