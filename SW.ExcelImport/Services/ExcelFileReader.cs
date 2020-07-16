@@ -15,6 +15,7 @@ namespace SW.ExcelImport.Services
     {
         private IExcelDataReader reader;
         private Stream stream;
+        private MemoryStream memoryStream;
         //private int sheetIndex = 1;
         private int index = 0;
         private bool loaded;
@@ -30,9 +31,12 @@ namespace SW.ExcelImport.Services
         public async Task<ISheetContainer> Load(string url, ICollection<SheetMappingOptions> sheetsOptions)
         {
             this.url = url;
-            using var tmpStream = await cloudFilesService.OpenReadAsync(url);
-            
+            using var tmpFileStream = await cloudFilesService.OpenReadAsync(url);
+            var tmpStream = new MemoryStream();
+            await tmpFileStream.CopyToAsync(tmpStream);
+
             using var tmpReader = ExcelReaderFactory.CreateReader(tmpStream); 
+
             
             
             if(tmpReader.ResultsCount == 0) return null;
@@ -81,7 +85,9 @@ namespace SW.ExcelImport.Services
             if (!loaded)
             {
                 stream = await cloudFilesService.OpenReadAsync(url);
-                reader = ExcelReaderFactory.CreateReader(stream);
+                memoryStream = new MemoryStream();
+                await stream.CopyToAsync(memoryStream);
+                reader = ExcelReaderFactory.CreateReader(memoryStream);
                 loaded = true;
             }
 
