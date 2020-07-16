@@ -35,15 +35,24 @@ namespace SW.ExcelImport.Services
             
             foreach (var sheetName in request.RelatedRows.Select(r => r.Sheet.Name).Distinct())
             {
-                rootObjectJson.Property(sheetName).Remove();
+                var propName = sheetName;
+                if(request.NamingStrategy == JsonNamingStrategy.SnakeCase)
+                    propName = sheetName.ToLower();
+
+                rootObjectJson.Property(propName).Remove();
                 var newArray = new JArray();
-                rootObjectJson.Add(sheetName, newArray);
+                rootObjectJson.Add(propName, newArray);
             }
 
             foreach (var (name, rowAsData) in request.RelatedRows.Select(r => (r.Sheet.Name, r.RowAsData)))
             {
+                var propName = name;
+                if(request.NamingStrategy == JsonNamingStrategy.SnakeCase)
+                    propName = name.ToLower();
+
+
                 var item = JObject.Parse(rowAsData);
-                var newArray = (JArray)rootObjectJson[name];
+                var newArray = (JArray)rootObjectJson[propName];
                 newArray.Add(item);
             }
 

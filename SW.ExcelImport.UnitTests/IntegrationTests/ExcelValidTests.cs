@@ -13,6 +13,7 @@ namespace SW.ExcelImport.UnitTests.Integration
     {
         private static DbContext db;
         private static ExcelService svc;
+        private static IExcelQueryable queryable;
         
         [ClassInitialize]
         public static void ClassInitialize(TestContext tContext)
@@ -20,7 +21,7 @@ namespace SW.ExcelImport.UnitTests.Integration
 
             db = (ExcelDbContext)TestServerClientFactory.GetServiceProvider().GetService(typeof(DbContext));
             svc=(ExcelService)TestServerClientFactory.GetServiceProvider().GetService(typeof(ExcelService));
-
+            queryable = (IExcelQueryable)TestServerClientFactory.GetServiceProvider().GetService(typeof(IExcelQueryable));
         }
 
         [TestMethod]
@@ -60,6 +61,7 @@ namespace SW.ExcelImport.UnitTests.Integration
             Assert.AreEqual(11, recordCount);
 
         }
+        
         
         // [TestMethod]
         // public async Task ParseAndValidateBig()

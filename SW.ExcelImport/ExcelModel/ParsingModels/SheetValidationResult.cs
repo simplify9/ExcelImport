@@ -24,6 +24,7 @@ namespace SW.ExcelImport
             Empty = false;
             IgnoreFirstRow = ignoreFirstRow;
             Map = map;
+            InvalidName = invalidName;
         }
         public bool Empty { get; private set; }
         public bool InvalidName { get; private set; }

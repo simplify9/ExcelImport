@@ -66,6 +66,8 @@ namespace SW.ExcelImport.Services
             var result = new SheetValidationResult(headerMap, ignoreFirstRow, invalidName, invalidHeaders.ToArray());
             return Task.FromResult(result);
 
+            
+
         }
 
 
