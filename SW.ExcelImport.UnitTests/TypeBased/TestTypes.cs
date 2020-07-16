@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 
@@ -24,6 +25,7 @@ namespace SW.ExcelImport.UnitTests.TypeBased
         public ICollection<Item> Items { get; set; }
         public ICollection<Other> OtherData { get; set; }
         public Weight Weight { get; set; }
+        public DateTime? OrderDate { get; set; }
 
     }
 

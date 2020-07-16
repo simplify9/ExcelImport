@@ -10,9 +10,9 @@ namespace SW.ExcelImport.UnitTests.TypeBased.Json.RowTypeParserTests
         [TestMethod]
         public void OnRootBasic()
         {
-            var row = Utils.GetRow(0, new object[] { "1", "101", "the user number", "kg", 8 });
+            var row = Utils.GetRow(0, new object[] { "1", "101", "the user number", "kg", 8 , "2020-05-25T05:44:12.251Z" });
             var options = new SheetMappingOptions
-            { Map = new string[] { "id", "number", "user_number", "weight.unit", "weight.value" }, SheetName = "order" };
+            { Map = new string[] { "id", "number", "user_number", "weight.unit", "weight.value" , "order_date" }, SheetName = "order" };
 
             var strategy = JsonNamingStrategy.SnakeCase;
 

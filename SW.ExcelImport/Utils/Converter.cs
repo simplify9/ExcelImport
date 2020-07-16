@@ -127,8 +127,8 @@ namespace SW.ExcelImport
             {
                 try
                 {
-                    var formats = new[] { "dd/MM/yyyy", "o" };
-                    result = DateTime.ParseExact(rawValue, formats, CultureInfo.InvariantCulture, DateTimeStyles.None);
+                    
+                    result = DateTime.Parse(rawValue);
                     return true;
                 }
                 catch (FormatException)
