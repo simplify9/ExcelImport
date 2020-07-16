@@ -2,7 +2,7 @@ namespace SW.ExcelImport.Entity
 {
     public class CellRecord: ICell
     {
-        protected CellRecord()
+        public CellRecord()
         {
             
         }
