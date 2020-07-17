@@ -18,7 +18,8 @@ namespace SW.ExcelImport.Services
 
         public async Task<ISearchyResponse<IExcelRowParsed>> GetParsed(IExcelQueryParsedOptions options)
         {
-            var query = db.Set<RowRecord>().Where(r => r.SheetRecord.ExcelFileRecord.Reference == options.Reference);
+            var query = db.Set<RowRecord>().Include(r => r.SheetRecord).ThenInclude(r => r.ExcelFileRecord)
+                .Where(r => r.SheetRecord.ExcelFileRecord.Reference == options.Reference);
 
             if(options.RowStatus == QueryRowStatus.Valid)
                 query = query.Where(r => r.ParseOk ==true);
