@@ -59,6 +59,11 @@ namespace SW.ExcelImport.UnitTests.Integration
 
             recordCount =await  db.Set<RowRecord>().CountAsync(x => x.IsValid !=null);
             Assert.AreEqual(11, recordCount);
+            var resultValidated = queryable.GetValidated(new ExcelQueryValidatedOptions 
+            {
+                Reference = "valid1",
+                 RowStatus = QueryRowStatus.All
+            });
 
         }
         
