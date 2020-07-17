@@ -80,6 +80,7 @@ namespace SW.ExcelImport.Entity
         public bool? ParseOk { get; private set; }
 
         public string[] ValidationErrors { get; private set; }
+        public string Reference => Id.ToString();
     }
 
     

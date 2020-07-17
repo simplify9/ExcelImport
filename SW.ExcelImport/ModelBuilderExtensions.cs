@@ -103,6 +103,7 @@ namespace SW.ExcelImport.EF
             record.Property(x => x.ValidationErrors).JsonStringArray();
             record.Ignore(x => x.Sheet);
             record.Ignore(x => x.Cells);
+            record.Ignore(x => x.Reference);
 
             //record.HasOne()
 

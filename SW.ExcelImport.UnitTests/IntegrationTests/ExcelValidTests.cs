@@ -65,6 +65,9 @@ namespace SW.ExcelImport.UnitTests.Integration
                  RowStatus = QueryRowStatus.All
             });
 
+            Assert.IsNotNull(resultValidated.Result.Result.First().Sheet);
+            Assert.IsNotNull(resultValidated.Result.Result.First().Reference);
+
         }
         
         

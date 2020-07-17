@@ -90,7 +90,7 @@ namespace SW.ExcelImport.Services
                 Result = result,
                 TotalCount = count
             };
-
+            
         }
     }
 }
