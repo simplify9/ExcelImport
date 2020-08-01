@@ -51,7 +51,7 @@ namespace SW.ExcelImport.EF
                 : string.Join(separator.ToString(), array),
             str => str == null
                 ? new int[] { }
-                : str.Split(separator).Select(e => int.Parse(e)).ToArray());
+                : str.Split(separator,StringSplitOptions.None).Select(e => int.Parse(e)).ToArray());
 
             builder.HasConversion(c);
             return builder;
@@ -64,7 +64,7 @@ namespace SW.ExcelImport.EF
                 : string.Join(separator.ToString(), array),
             str => str == null
                 ? new string[] { }
-                : str.Split(separator));
+                : str.Split(separator, StringSplitOptions.None));
 
             builder.HasConversion(c);
             return builder;
