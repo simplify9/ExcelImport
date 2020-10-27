@@ -10,17 +10,8 @@ namespace SW.ExcelImport
                 Map = null,
                 IdIndex = index == 0 ? 0 : (int?)null,
                 ParentIdIndex = index == 0 ? (int?)null :0,
-                IndexAsId = index != 0,
+                IndexAsId = index != 0
             };
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        public SheetMappingOptions()
-        {
-            IdIndex = null;
-            ParentIdIndex = null;
-            IndexAsId = true;
         }
         
         public int SheetIndex { get; set; }
