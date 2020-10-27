@@ -20,6 +20,7 @@ namespace SW.ExcelImport.IServiceCollectionExtensions
             serviceCollection.AddScoped<IExcelReader, ExcelFileReader>();
             serviceCollection.AddTransient<ExcelFileTypedParseToJsonLoader>();
             serviceCollection.AddScoped<ExcelRepo>();
+            serviceCollection.AddScoped(typeof(SheetRowReader<>));
             serviceCollection.AddTransient<ExcelRowTypeParser>();
             serviceCollection.AddTransient<ExcelRowTypeValidatorOnAnnotations>();
             serviceCollection.AddTransient<ExcelService>();

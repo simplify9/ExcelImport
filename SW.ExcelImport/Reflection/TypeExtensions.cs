@@ -16,7 +16,7 @@ namespace SW.ExcelImport
         public static string Transform(this string s, JsonNamingStrategy strategy) =>
             strategy switch
             {
-                
+                JsonNamingStrategy.None => s,
                 JsonNamingStrategy.SnakeCase => s.ToPascalCase(),
                 _ => throw new NotImplementedException()
             };

@@ -7,7 +7,8 @@ namespace SW.ExcelImport
 {
     public interface IExcelReader: IDisposable
     {
-        Task<ISheetContainer> Load(string url, ICollection<SheetMappingOptions> sheetsOptions);
+        Task<ISheet> LoadSheet(string url, int sheetIndex, string[] map = null);
+        Task<ISheetContainer> Load(string fileUrl, ICollection<SheetMappingOptions> sheetsOptions);
         IExcelRow Current { get; }
         Task<bool> ReadRow();
     }

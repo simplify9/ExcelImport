@@ -29,11 +29,11 @@ namespace SW.ExcelImport.UnitTests.Integration
         {
             var result = await svc.LoadExcelFileInfo("valid1" , new TypedParseToJsonOptions 
             {
-                AssemblyQualifiedTypeName = typeof(Order).AssemblyQualifiedName,
+                TypeAssemblyQualifiedName = typeof(Order).AssemblyQualifiedName,
                 NamingStrategy = JsonNamingStrategy.SnakeCase
             });
 
-            Assert.AreEqual(false, result.Sheets.Any(x => x.HasErrors()));
+            Assert.AreEqual(false, result.Sheets.Any(x => InterfacesExtensions.HasErrors((ISheet) x)));
         }
 
         [TestMethod]
@@ -41,7 +41,7 @@ namespace SW.ExcelImport.UnitTests.Integration
         {
             var options = new TypedParseToJsonOptions 
             {
-                AssemblyQualifiedTypeName = typeof(Order).AssemblyQualifiedName,
+                TypeAssemblyQualifiedName = typeof(Order).AssemblyQualifiedName,
                 NamingStrategy = JsonNamingStrategy.SnakeCase
             };
             await svc.Import("valid1" , options);
@@ -62,7 +62,7 @@ namespace SW.ExcelImport.UnitTests.Integration
             var resultValidated = queryable.GetValidated(new ExcelQueryValidatedOptions 
             {
                 Reference = "valid1",
-                 RowStatus = QueryRowStatus.All
+                RowStatus = QueryRowStatus.All
             });
 
             Assert.IsNotNull(resultValidated.Result.Result.First().Sheet);

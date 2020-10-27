@@ -8,10 +8,15 @@ namespace SW.ExcelImport
 
     public class TypedParseToJsonOptions : IProcessOptions
     {
+        public TypedParseToJsonOptions()
+        {
+            NamingStrategy = JsonNamingStrategy.None;
+        }
+        
         public bool BlockOnParse { get; set; }
         public int MaxParseErrors { get; set; }
         public int MaxValidationErrors { get; set; }
-        public string AssemblyQualifiedTypeName { get; set; }
+        public string TypeAssemblyQualifiedName { get; set; }
         public ICollection<SheetMappingOptions> SheetsOptions { get; }
         public JsonNamingStrategy NamingStrategy { get; set; }
         public ExcelRowParseOnTypeRequest RowParseOnTypeRequest(IExcelRow row) =>

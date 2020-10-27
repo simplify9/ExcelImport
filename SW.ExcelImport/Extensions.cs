@@ -12,7 +12,7 @@ namespace SW.ExcelImport
     {
         public static Type OnType(this TypedParseToJsonOptions options)
         {
-            return Type.GetType(options.AssemblyQualifiedTypeName);
+            return Type.GetType(options.TypeAssemblyQualifiedName);
         }
 
         public static ObjectSerialized ToObjectSerialized(this object obj)

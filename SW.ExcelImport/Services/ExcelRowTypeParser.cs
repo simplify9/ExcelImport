@@ -10,6 +10,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace SW.ExcelImport.Services
 {
+    
     public class ExcelRowTypeParser : ExcelRowParser<ExcelRowParseOnTypeRequest, ExcelRowParseResult>
     {
         readonly ExcelRepo repo;
@@ -26,8 +27,8 @@ namespace SW.ExcelImport.Services
             var idParseResult = ParseId(request.Row,request.Options);
             result.Populate(idParseResult);
 
-            var cellsParseReult = ParseCells(request, idParseResult.ExcludeColumns);
-            result.Populate(cellsParseReult);
+            var cellsParseResult = ParseCells(request, idParseResult.ExcludeColumns);
+            result.Populate(cellsParseResult);
 
             var idInStoreValidationResult = await ValidateIds(result, request);
             result.Populate(idInStoreValidationResult);
@@ -93,12 +94,9 @@ namespace SW.ExcelImport.Services
             var map = request.Options.Map ?? row.Sheet.Header.Select(x => x.Value.ToString()).ToArray() ;
             var strategy = request.NamingStrategy;
 
-            if (sheet.Index == 0)
-                parseOnType = request.RootType;
-            else
-                parseOnType = request.RootType.GetEnumerablePropertyType(name, strategy);
+            parseOnType = sheet.Index == 0 ? request.RootType : request.RootType.GetEnumerablePropertyType(name, strategy);
 
-            for (int i = 0; i < row.Cells.Length; i++)
+            for (var i = 0; i < row.Cells.Length; i++)
             {
                 if (excludeCells.Contains(i)) continue;
 

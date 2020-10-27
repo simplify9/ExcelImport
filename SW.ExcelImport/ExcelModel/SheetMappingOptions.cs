@@ -5,14 +5,22 @@ namespace SW.ExcelImport
     {
         public static SheetMappingOptions Default(int index)
         {
-            return new SheetMappingOptions
+            return new SheetMappingOptions()
             {
-                SheetIndex = index,
                 Map = null,
                 IdIndex = index == 0 ? 0 : (int?)null,
                 ParentIdIndex = index == 0 ? (int?)null :0,
-                IndexAsId = index == 0 ? false : true,
+                IndexAsId = index != 0,
             };
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public SheetMappingOptions()
+        {
+            IdIndex = null;
+            ParentIdIndex = null;
+            IndexAsId = true;
         }
         
         public int SheetIndex { get; set; }
@@ -22,5 +30,6 @@ namespace SW.ExcelImport
         public string SheetName { get; set; }
         public bool IndexAsId { get; set; }
         public int? ParenSheetIndex { get; set; }
+        public bool Ignore { get; set; }
     }
 }

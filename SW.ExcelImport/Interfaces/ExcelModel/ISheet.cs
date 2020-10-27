@@ -1,6 +1,12 @@
-﻿namespace SW.ExcelImport
+﻿using System.Collections.Generic;
+
+namespace SW.ExcelImport
 {
 
+    public interface ISheetWithRows<T>: ISheet 
+    {
+        public  IEnumerable<IExcelRowParsed<T>> Rows { get; set; }
+    }
     public interface ISheet
     {
         ISheetContainer Parent { get; }

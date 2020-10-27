@@ -24,7 +24,7 @@ namespace SW.ExcelImport.Services
             var container = await reader.Load(url, options.SheetsOptions);
             var validationResult = new Dictionary<int,SheetValidationResult>();
             var sheets = container.Sheets;
-            var onType  = Type.GetType(options.AssemblyQualifiedTypeName);
+            
             foreach(var sheet in sheets)
             {
                 var sheetOptions = GetOptions(sheet, options);
@@ -44,7 +44,9 @@ namespace SW.ExcelImport.Services
             return new ExcelFileRecord(url, sheets, validationResult, options);
         }
         
-        private SheetMappingOptions GetOptions(ISheet sheet, TypedParseToJsonOptions options) =>
+        
+        
+        private static SheetMappingOptions GetOptions(ISheet sheet, IProcessOptions options) =>
             options.SheetsOptions?.FirstOrDefault(o => o.SheetIndex == sheet.Index) ??
                  SheetMappingOptions.Default(sheet.Index);
     }
