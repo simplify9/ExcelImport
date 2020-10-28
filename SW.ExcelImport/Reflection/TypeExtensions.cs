@@ -38,17 +38,17 @@ namespace SW.ExcelImport
         public static object CreateFromDictionary(this Type t, IDictionary<string,object> valueMap)
         {
             var obj = Activator.CreateInstance(t);
-            foreach (var pair in valueMap)
+            foreach (var (key, value) in valueMap.Where(v=> v.Value != null))
             {
-                var propertyPath = PropertyPath.TryParse(t, pair.Key);
+                var propertyPath = PropertyPath.TryParse(t, key);
                 if (propertyPath == null)
                 {
-                    var msg = string.Format("Property path '{0}' is invalid", pair.Key);
+                    var msg = $"Property path '{key}' is invalid";
                     throw new ArgumentException(msg);
                 }
 
                 
-                propertyPath.Set(obj, pair.Value);
+                propertyPath.Set(obj, value);
                 
             }
             return obj;
