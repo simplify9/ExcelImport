@@ -15,19 +15,28 @@ namespace SW.ExcelImport.IServiceCollectionExtensions
     {
         public static IServiceCollection AddExcelImport(this IServiceCollection serviceCollection)
         {
-            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-
-            serviceCollection.AddScoped<IExcelReader, ExcelFileReader>();
+            serviceCollection.AddSheetReader();
             serviceCollection.AddTransient<ExcelFileTypedParseToJsonLoader>();
             serviceCollection.AddScoped<ExcelRepo>();
-            serviceCollection.AddScoped(typeof(SheetRowReader<>));
+            
             serviceCollection.AddTransient<ExcelRowTypeParser>();
             serviceCollection.AddTransient<ExcelRowTypeValidatorOnAnnotations>();
             serviceCollection.AddTransient<ExcelService>();
-            serviceCollection.AddTransient<ExcelSheetOnTypeValidator>();
+            
             serviceCollection.AddTransient<IExcelQueryable, ExcelQueryable>();
             return serviceCollection;
-
         }
+        
+        public static IServiceCollection AddSheetReader(this IServiceCollection serviceCollection)
+        {
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+
+            serviceCollection.AddScoped<IExcelReader, ExcelFileReader>();
+            serviceCollection.AddScoped(typeof(SheetReader<>));
+            serviceCollection.AddTransient<ExcelSheetOnTypeValidator>();
+            
+            return serviceCollection;
+        }
+        
     }
 }

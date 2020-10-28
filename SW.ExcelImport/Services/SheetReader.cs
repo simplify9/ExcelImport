@@ -5,24 +5,22 @@ using System.Threading.Tasks;
 
 namespace SW.ExcelImport.Services
 {
-    public class SheetRowReader<T> where T : new()
+    public class SheetReader<T> where T : new()
     {
         readonly IExcelReader reader;
         readonly ExcelSheetOnTypeValidator sheetValidator;
-        readonly ExcelRowTypeParser parser;
         private bool loaded = false;
         private SheetValidationResult sheetValidationResult;
         private JsonNamingStrategy namingStrategy;
         private bool ignoreFirst;
         private string[] map;
-        public SheetRowReader(IExcelReader reader, ExcelSheetOnTypeValidator sheetValidator, ExcelRowTypeParser parser)
+        public SheetReader(IExcelReader reader, ExcelSheetOnTypeValidator sheetValidator)
         {
             this.reader = reader;
             this.sheetValidator = sheetValidator;
-            this.parser = parser;
         }
 
-        public async Task<SheetValidationResult> Load(string url, int sheetIndex = 0,
+        public async Task<SheetValidationResult> Validate(string url, int sheetIndex = 0,
             JsonNamingStrategy jsonNamingStrategy = JsonNamingStrategy.None,
             string[] headerMap = null, bool ignoreFirstRow = true) 
         {
@@ -50,13 +48,13 @@ namespace SW.ExcelImport.Services
             
             sheetValidationResult=  await sheetValidator.Validate(request);
             return sheetValidationResult;
-
         }
-
+        
+        
         public async Task<(bool,RowParseResultTyped<T>)> Read()
         {
             if(!loaded)
-                throw new InvalidOperationException("Sheet not loaded. Call the load sheet first");
+                throw new InvalidOperationException("Sheet not loaded. Call the Load or Validate sheet first");
 
             if(sheetValidationResult.HasErrors)
                 throw new InvalidOperationException("Sheet is invalid");
@@ -84,17 +82,15 @@ namespace SW.ExcelImport.Services
 
                 var value = row.Cells[i].Value;
                 var propertyName = headerMap[i].Transform(namingStrategy);
-                object castValue;
 
                 var propertyPath = PropertyPath.TryParse(parseOnType, propertyName);
 
                 var convertSucceeded =
-                    Converter.TryCreate(value, propertyPath.PropertyType, out castValue);
+                    Converter.TryCreate(value, propertyPath.PropertyType, out var castValue);
     
                 if (convertSucceeded)
                 {
-                    if (castValue != null && castValue.GetType() == typeof(string) &&
-                        (castValue as string) == string.Empty)
+                    if (castValue is string s && s == string.Empty)
                         castValue = null;
                     values[propertyName] = castValue;
                 }
@@ -110,8 +106,22 @@ namespace SW.ExcelImport.Services
             return (true, result);
         }
 
-        public async Task<ICollection<RowParseResultTyped<T>>> ReadAll()
+        public async Task Load(string url, int sheetIndex = 0,
+            JsonNamingStrategy jsonNamingStrategy = JsonNamingStrategy.None,
+            string[] headerMap = null, bool ignoreFirstRow = true)
         {
+            var validationResult = await Validate(url, sheetIndex, jsonNamingStrategy, headerMap, ignoreFirstRow);
+            if(validationResult.HasErrors)
+                throw new InvalidOperationException("Sheet is invalid");
+            
+        }
+        public async Task<ICollection<RowParseResultTyped<T>>> ReadAll(string url, int sheetIndex = 0,
+            JsonNamingStrategy jsonNamingStrategy = JsonNamingStrategy.None,
+            string[] headerMap = null, bool ignoreFirstRow = true)
+        {
+            if (!loaded)
+                await Load(url, sheetIndex, jsonNamingStrategy, headerMap, ignoreFirstRow);
+            
             var results = new List<RowParseResultTyped<T>>();
             var found = false;
             do

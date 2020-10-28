@@ -11,22 +11,22 @@ namespace SW.ExcelImport.UnitTests.Integration
     public class SheetValid
     {
         
-        private static SheetRowReader<Order> svc;
+        private static SheetReader<Order> svc;
         
         
         [ClassInitialize]
         public static void ClassInitialize(TestContext tContext)
         {
-            svc=(SheetRowReader<Order>)TestServerClientFactory.GetServiceProvider().GetService(typeof(SheetRowReader<Order>));
+            svc=(SheetReader<Order>)TestServerClientFactory.GetServiceProvider().GetService(typeof(SheetReader<Order>));
         }
         
         [TestMethod]
         public async Task Basic()
         {
-            var loadResult = await svc.Load("valid_single_sheet");
+            var loadResult = await svc.Validate("valid_single_sheet");
             Assert.AreEqual(false, loadResult.HasErrors);
 
-            var result = await svc.ReadAll();
+            var result = await svc.ReadAll("valid_single_sheet");
             
             //Assert.IsTrue(result.Count == 4);
             
