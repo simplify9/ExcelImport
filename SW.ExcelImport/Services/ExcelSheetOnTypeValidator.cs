@@ -46,9 +46,15 @@ namespace SW.ExcelImport.Services
                 if(request.MappingOptions.ParentIdIndex.HasValue)
                     idHeaders.Add(request.MappingOptions.ParentIdIndex.Value);
 
-                for (int i = 0; i < headerMap.Length; i++)
+                for (var i = 0; i < headerMap.Length; i++)
                 {
+                    
                     if (idHeaders.Contains(i)) continue;
+                    if (string.IsNullOrEmpty(headerMap[i]))
+                    {
+                        invalidHeaders.Add(i);
+                        continue;
+                    }
                     var propertyName = headerMap[i].Transform(request.NamingStrategy);
                     var propertyPath = PropertyPath.TryParse(type, propertyName);
                     if (propertyPath == null) 
@@ -71,8 +77,8 @@ namespace SW.ExcelImport.Services
         }
 
 
-        private (bool, string[]) GetMap(ISheet sheet, SheetMappingOptions options) =>
-            (options.Map == null, options.Map ?? sheet.Header.Select(x => x.Value.ToString()).ToArray());
+        private static (bool, string[]) GetMap(ISheet sheet, SheetMappingOptions options) =>
+            (options.Map == null, options.Map ?? sheet.Header.Select(x => x.Value?.ToString()).ToArray());
 
         private Type GetEnumerableType(Type rootType, string propertyName, JsonNamingStrategy strategy)
         {

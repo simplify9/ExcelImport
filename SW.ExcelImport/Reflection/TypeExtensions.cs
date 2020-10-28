@@ -31,6 +31,7 @@ namespace SW.ExcelImport
         
         private static string ToPascalCase(this string s)
         {
+            
             var yourString = s.ToLower().Replace("_", " ");
             var info = CultureInfo.CurrentCulture.TextInfo;
             return info.ToTitleCase(yourString).Replace(" ", string.Empty);
