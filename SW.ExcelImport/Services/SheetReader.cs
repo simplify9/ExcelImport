@@ -99,7 +99,7 @@ namespace SW.ExcelImport.Services
             }
             
             result.InvalidCells = invalidCells.ToArray();
-            
+            result.Row = row;
             if (invalidCells.Count == 0)
                 result.RowMapped = (T)parseOnType.CreateFromDictionary(values);
 
@@ -117,7 +117,7 @@ namespace SW.ExcelImport.Services
         }
         public async Task<ICollection<RowParseResultTyped<T>>> ReadAll(string url, int sheetIndex = 0,
             JsonNamingStrategy jsonNamingStrategy = JsonNamingStrategy.None,
-            string[] headerMap = null, bool ignoreFirstRow = true)
+            string[] headerMap = null, bool ignoreFirstRow = true, bool ignoreEmpty = true)
         {
             if (!loaded)
                 await Load(url, sheetIndex, jsonNamingStrategy, headerMap, ignoreFirstRow);
@@ -127,8 +127,11 @@ namespace SW.ExcelImport.Services
             do
             {
                 var (hasResult, result) = await Read();
+                
                 found = hasResult;
-                if(found) results.Add(result);
+                if (!found) continue;
+                if(ignoreEmpty && result.Row.Cells.All(c=> c.Value == null || c.ToString() == "")) continue;
+                results.Add(result);
             } while (found);
 
             return results;
